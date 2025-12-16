@@ -613,44 +613,78 @@
                                 h('div', { className: 'detail-card', style: { height: '100%', padding: '20px' } },
                                     h('h4', { style: { marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: '#1e293b' } }, 'Documenten & Links'),
                                     h('div', { className: 'links-grid', style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
-                                        itemData.Link_x0020_Algemeen_x0020_PV ? h('a', { 
-                                            href: itemData.Link_x0020_Algemeen_x0020_PV.Url, 
-                                            target: '_blank',
-                                            className: 'doc-link-card',
-                                            style: { 
-                                                display: 'flex', alignItems: 'center', gap: '12px', 
-                                                padding: '12px', background: '#f8fafc', borderRadius: '8px',
-                                                textDecoration: 'none', color: '#334155', border: '1px solid #e2e8f0',
-                                                transition: 'all 0.2s', cursor: 'pointer'
-                                            },
-                                            onMouseOver: (e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff'; },
-                                            onMouseOut: (e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }
-                                        }, 
-                                            h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
-                                            h('div', null,
-                                                h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Algemeen_x0020_PV.Description || 'Algemeen PV'),
-                                                h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Klik om document te openen')
-                                            )
+                                        itemData.Link_x0020_Algemeen_x0020_PV ? h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
+                                            // Primary Button (SharePoint)
+                                            h('a', { 
+                                                href: itemData.Link_x0020_Algemeen_x0020_PV.Url, 
+                                                target: '_blank',
+                                                className: 'doc-link-primary',
+                                                style: { 
+                                                    flex: '1', display: 'flex', alignItems: 'center', gap: '12px', 
+                                                    padding: '12px', background: '#f8fafc', textDecoration: 'none', color: '#334155',
+                                                    transition: 'all 0.2s', borderRight: '1px solid #e2e8f0'
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#eff6ff'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f8fafc'; }
+                                            }, 
+                                                h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
+                                                h('div', null,
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Algemeen_x0020_PV.Description || 'Algemeen PV'),
+                                                    h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open in SharePoint')
+                                                )
+                                            ),
+                                            // Secondary Button (UNC/Explorer)
+                                            h('div', { 
+                                                className: 'doc-link-secondary',
+                                                title: 'Kopieer pad naar Verkenner',
+                                                style: { 
+                                                    width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s'
+                                                },
+                                                onClick: () => {
+                                                    const uncPath = itemData.Link_x0020_Algemeen_x0020_PV.Url.replace(/^https?:\/\//, '\\\\').replace(/\//g, '\\');
+                                                    navigator.clipboard.writeText(uncPath).then(() => alert('Pad gekopieerd naar klembord:\n' + uncPath));
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
+                                            }, h(Icons.FolderOpen))
                                         ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen Algemeen PV beschikbaar'),
 
-                                        itemData.Link_x0020_Schouwrapporten ? h('a', { 
-                                            href: itemData.Link_x0020_Schouwrapporten.Url, 
-                                            target: '_blank',
-                                            className: 'doc-link-card',
-                                            style: { 
-                                                display: 'flex', alignItems: 'center', gap: '12px', 
-                                                padding: '12px', background: '#f8fafc', borderRadius: '8px',
-                                                textDecoration: 'none', color: '#334155', border: '1px solid #e2e8f0',
-                                                transition: 'all 0.2s', cursor: 'pointer'
-                                            },
-                                            onMouseOver: (e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff'; },
-                                            onMouseOut: (e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }
-                                        }, 
-                                            h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
-                                            h('div', null,
-                                                h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Schouwrapporten.Description || 'Schouwrapporten'),
-                                                h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Klik om map te openen')
-                                            )
+                                        itemData.Link_x0020_Schouwrapporten ? h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
+                                            // Primary Button (SharePoint)
+                                            h('a', { 
+                                                href: itemData.Link_x0020_Schouwrapporten.Url, 
+                                                target: '_blank',
+                                                className: 'doc-link-primary',
+                                                style: { 
+                                                    flex: '1', display: 'flex', alignItems: 'center', gap: '12px', 
+                                                    padding: '12px', background: '#f8fafc', textDecoration: 'none', color: '#334155',
+                                                    transition: 'all 0.2s', borderRight: '1px solid #e2e8f0'
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#eff6ff'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f8fafc'; }
+                                            }, 
+                                                h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
+                                                h('div', null,
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Schouwrapporten.Description || 'Schouwrapporten'),
+                                                    h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open in SharePoint')
+                                                )
+                                            ),
+                                            // Secondary Button (UNC/Explorer)
+                                            h('div', { 
+                                                className: 'doc-link-secondary',
+                                                title: 'Kopieer pad naar Verkenner',
+                                                style: { 
+                                                    width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s'
+                                                },
+                                                onClick: () => {
+                                                    const uncPath = itemData.Link_x0020_Schouwrapporten.Url.replace(/^https?:\/\//, '\\\\').replace(/\//g, '\\');
+                                                    navigator.clipboard.writeText(uncPath).then(() => alert('Pad gekopieerd naar klembord:\n' + uncPath));
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
+                                            }, h(Icons.FolderOpen))
                                         ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen schouwrapporten beschikbaar')
                                     )
                                 )
