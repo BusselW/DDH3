@@ -6,6 +6,65 @@
  * including tables, forms, modals, and responsive design
  */
 
+:root {
+    /* Brand Colors */
+    --color-primary: #0078d4;
+    --color-primary-dark: #005a9e;
+    --color-secondary: #e1e1e1;
+    --color-secondary-hover: #d1d1d1;
+    
+    /* Text Colors */
+    --color-text-main: #333;
+    --color-text-light: #555;
+    --color-text-lighter: #666;
+    --color-text-muted: #888;
+    --color-text-inverse: #ffffff;
+    
+    /* Background Colors */
+    --color-bg-body: #f0f2f5;
+    --color-bg-white: #ffffff;
+    --color-bg-light: #f8f9fa;
+    --color-bg-lighter: #f8f9fb;
+    --color-bg-hover: #e9f5ff;
+    
+    /* Border Colors */
+    --color-border: #ccc;
+    --color-border-light: #eee;
+    --color-border-lighter: #e9ecef;
+    --color-border-input: #dee2e6;
+
+    /* Status Colors */
+    --color-success: #28a745;
+    --color-success-dark: #1e7e34;
+    --color-success-bg: #d4edda;
+    --color-success-text: #155724;
+    
+    --color-warning: #ffc107;
+    --color-warning-dark: #e0a800;
+    --color-warning-bg: #fff4ce;
+    --color-warning-text: #855e00;
+
+    --color-info: #17a2b8;
+    --color-info-bg: #cce5ff;
+    --color-info-text: #004085;
+    --color-blue: #007bff;
+
+    --color-secondary-status: #6c757d;
+    --color-secondary-status-bg: #e2e3e5;
+    --color-secondary-status-text: #383d41;
+
+    /* Error Colors */
+    --color-error: #d83b01;
+    --color-error-bg: #f8d7da;
+    --color-error-border: #f5c6cb;
+    --color-error-text: #721c24;
+
+    /* Misc */
+    --color-spinner: #f3f3f3;
+    --shadow-card: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-header: 0 4px 8px rgba(0,0,0,0.1);
+}
+
 /* Basis styling voor DDH applicatie */
 * {
     box-sizing: border-box;
@@ -15,8 +74,8 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0 0 60px 0;
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: var(--color-bg-body);
+    color: var(--color-text-main);
     overflow-y: auto;
     min-height: 100vh;
 }
@@ -30,12 +89,12 @@ body {
 
 /* Header styling */
 .ddh-header {
-    background-color: #005a9e;
-    color: white;
+    background-color: var(--color-primary-dark);
+    color: var(--color-text-inverse);
     padding: 20px;
     margin-bottom: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-header);
 }
 
 .ddh-header h1 {
@@ -71,27 +130,27 @@ body {
 }
 
 .btn-primary {
-    background-color: #0078d4;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
 }
 
 .btn-primary:hover {
-    background-color: #005a9e;
+    background-color: var(--color-primary-dark);
 }
 
 .btn-secondary {
-    background-color: #e1e1e1;
-    color: #333;
-    border: 1px solid #ccc;
+    background-color: var(--color-secondary);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
 }
 
 .btn-secondary:hover {
-    background-color: #d1d1d1;
+    background-color: var(--color-secondary-hover);
 }
 
 /* Content area */
 .ddh-content {
-    background-color: white;
+    background-color: var(--color-bg-white);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     overflow: hidden;
@@ -101,7 +160,7 @@ body {
     margin: 0;
     padding: 20px;
     font-size: 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-light);
     display: flex;
     align-items: center;
     gap: 15px;
@@ -111,7 +170,7 @@ body {
     font-size: 14px;
     font-style: italic;
     font-weight: normal;
-    color: #666;
+    color: var(--color-text-lighter);
 }
 
 /* Data tabel */
@@ -130,14 +189,14 @@ body {
 .data-tabel td {
     padding: 12px 8px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-light);
     vertical-align: top;
 }
 
 .data-tabel th {
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-light);
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-light);
     position: sticky;
     top: 0;
     font-size: 13px;
@@ -149,13 +208,13 @@ body {
 }
 
 .data-tabel tr.dh-row.expandable:hover {
-    background-color: #e9f5ff;
+    background-color: var(--color-bg-hover);
     cursor: pointer;
 }
 
 /* Child item styling - completely redesigned */
 .child-row {
-    background-color: #f8f9fb !important;
+    background-color: var(--color-bg-lighter) !important;
 }
 
 .child-content {
@@ -164,8 +223,8 @@ body {
 
 .child-container {
     padding: 20px;
-    background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
-    border-left: 4px solid #0078d4;
+    background: linear-gradient(135deg, var(--color-bg-lighter) 0%, var(--color-bg-white) 100%);
+    border-left: 4px solid var(--color-primary);
     margin: 0;
 }
 
@@ -177,11 +236,11 @@ body {
 }
 
 .problem-card {
-    background: white;
+    background: var(--color-bg-white);
     border-radius: 8px;
     padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-left: 4px solid #28a745;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--color-success);
     transition: all 0.2s ease;
 }
 
@@ -191,19 +250,19 @@ body {
 }
 
 .problem-card.status-aangemeld {
-    border-left-color: #ffc107;
+    border-left-color: var(--color-warning);
 }
 
 .problem-card.status-in-behandeling {
-    border-left-color: #007bff;
+    border-left-color: var(--color-blue);
 }
 
 .problem-card.status-uitgezet-bij-oi {
-    border-left-color: #28a745;
+    border-left-color: var(--color-success);
 }
 
 .problem-card.status-opgelost {
-    border-left-color: #6c757d;
+    border-left-color: var(--color-secondary-status);
 }
 
 .problem-header {
@@ -215,7 +274,7 @@ body {
 
 .problem-title {
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-main);
     font-size: 14px;
     margin: 0;
     flex: 1;
@@ -223,13 +282,13 @@ body {
 
 .problem-date {
     font-size: 12px;
-    color: #666;
+    color: var(--color-text-lighter);
     white-space: nowrap;
     margin-left: 12px;
 }
 
 .problem-description {
-    color: #555;
+    color: var(--color-text-light);
     font-size: 13px;
     line-height: 1.4;
     margin: 8px 0;
@@ -244,11 +303,11 @@ body {
     align-items: center;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-border-light);
 }
 
 .problem-category {
-    background: #e9ecef;
+    background: var(--color-border-lighter);
     color: #495057;
     padding: 4px 8px;
     border-radius: 12px;
@@ -258,16 +317,16 @@ body {
 
 /* Location info header for child items */
 .location-info {
-    background: white;
+    background: var(--color-bg-white);
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--color-border-lighter);
 }
 
 .location-info h3 {
     margin: 0 0 12px 0;
-    color: #005a9e;
+    color: var(--color-primary-dark);
     font-size: 16px;
     display: flex;
     align-items: center;
@@ -294,7 +353,7 @@ body {
 
 .location-detail-label {
     font-size: 11px;
-    color: #666;
+    color: var(--color-text-lighter);
     text-transform: uppercase;
     font-weight: 600;
     margin-bottom: 4px;
@@ -302,7 +361,7 @@ body {
 
 .location-detail-value {
     font-size: 13px;
-    color: #333;
+    color: var(--color-text-main);
     font-weight: 500;
 }
 
@@ -317,19 +376,19 @@ body {
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: #f8f9fa;
-    color: #0078d4;
+    background: var(--color-bg-light);
+    color: var(--color-primary);
     text-decoration: none;
     border-radius: 16px;
     font-size: 12px;
     font-weight: 500;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--color-border-input);
     transition: all 0.2s ease;
 }
 
 .location-link:hover {
-    background: #0078d4;
-    color: white;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     text-decoration: none;
 }
 
@@ -342,7 +401,7 @@ body {
 .section-title {
     font-size: 14px;
     font-weight: 600;
-    color: #333;
+    color: var(--color-text-main);
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -386,33 +445,33 @@ body {
 }
 
 .status-aangemeld {
-    background-color: #fff4ce;
-    color: #855e00;
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-text);
 }
 
 .status-in-behandeling {
-    background-color: #cce5ff;
-    color: #004085;
+    background-color: var(--color-info-bg);
+    color: var(--color-info-text);
 }
 
 .status-uitgezet-bij-oi {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .status-opgelost {
-    background-color: #e2e3e5;
-    color: #383d41;
+    background-color: var(--color-secondary-status-bg);
+    color: var(--color-secondary-status-text);
 }
 
 .status-aangevraagd {
-    background-color: #fff4ce;
-    color: #855e00;
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-text);
 }
 
 .status-instemming-verleend {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 /* Modal styling */
@@ -430,7 +489,7 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--color-bg-white);
     padding: 30px;
     border-radius: 8px;
     width: 90%;
@@ -455,7 +514,7 @@ body {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #888;
+    color: var(--color-text-muted);
 }
 
 .form-grid {
@@ -483,7 +542,7 @@ body {
 .form-group select,
 .form-group textarea {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
     border-radius: 5px;
     font-size: 14px;
 }
@@ -513,18 +572,18 @@ body {
 }
 
 .loading-overlay {
-    color: #0078d4;
+    color: var(--color-primary);
 }
 
 .error-overlay {
-    color: #d83b01;
+    color: var(--color-error);
 }
 
 /* Error container voor development */
 .error-container {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
+    background-color: var(--color-error-bg);
+    border: 1px solid var(--color-error-border);
+    color: var(--color-error-text);
     padding: 20px;
     margin: 20px;
     border-radius: 5px;
@@ -547,8 +606,8 @@ body {
     width: 20px;
     height: 20px;
     margin-left: 10px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #0078d4;
+    border: 2px solid var(--color-spinner);
+    border-top: 2px solid var(--color-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -650,12 +709,12 @@ body {
 
 /* Hierarchical grouping styles for gemeente → pleeglocatie → problemen */
 .gemeente-row { 
-    background-color: #f8f9fa !important; 
-    border-left: 4px solid #0078d4; 
+    background-color: var(--color-bg-light) !important; 
+    border-left: 4px solid var(--color-primary); 
     cursor: pointer; 
 }
 .gemeente-row:hover { 
-    background-color: #e9ecef !important; 
+    background-color: var(--color-border-lighter) !important; 
 }
 .gemeente-row td { 
     font-weight: bold; 
@@ -668,27 +727,27 @@ body {
 
 /* Enhanced location row styling */
 .dh-row td:first-child { 
-    border-left: 3px solid #28a745; 
+    border-left: 3px solid var(--color-success); 
 }
 .dh-row:hover td:first-child {
-    border-left: 3px solid #1e7e34;
+    border-left: 3px solid var(--color-success-dark);
 }
 
 /* Enhanced problem row styling */
 .probleem-row td:first-child { 
-    border-left: 3px solid #ffc107; 
+    border-left: 3px solid var(--color-warning); 
     padding-left: 60px !important;
 }
 .probleem-row:hover td:first-child {
-    border-left: 3px solid #e0a800;
+    border-left: 3px solid var(--color-warning-dark);
 }
 
 /* Problem header styling */
 .probleem-header-row { 
-    background-color: #f8f9fa; 
+    background-color: var(--color-bg-light); 
     font-weight: bold; 
     color: #495057; 
-    border-left: 4px solid #17a2b8 !important;
+    border-left: 4px solid var(--color-info) !important;
 }
 .probleem-header-row td { 
     padding: 12px; 

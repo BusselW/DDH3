@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DDH Portal - Design 2: Tree View</title>
+    <title>Digitale handhaving en probleemlocaties</title>
     
     <style>
         * { box-sizing: border-box; }
@@ -561,6 +561,51 @@
                             h('h2', { className: 'content-title' }, itemData.Title),
                             h('p', { className: 'content-subtitle' }, `${itemData.Gemeente} • ${problems.length} problemen`)
                         ),
+                        
+                        // --- Nieuwe Locatie Details Sectie ---
+                        h('div', { className: 'detail-section' },
+                            h('h3', { className: 'detail-title' }, h(Icons.Location), 'Locatie Details'),
+                            h('div', { className: 'locatie-detail' },
+                                h('div', { className: 'locatie-info' },
+                                    h('div', { className: 'location-details' },
+                                        h('div', { className: 'location-detail' },
+                                            h('span', { className: 'location-detail-label' }, 'Status B&S'),
+                                            h('span', { className: 'location-detail-value' }, itemData.Status_x0020_B_x0026_S || '-')
+                                        ),
+                                        h('div', { className: 'location-detail' },
+                                            h('span', { className: 'location-detail-label' }, 'Feitcodegroep'),
+                                            h('span', { className: 'location-detail-value' }, itemData.Feitcodegroep || '-')
+                                        ),
+                                        h('div', { className: 'location-detail' },
+                                            h('span', { className: 'location-detail-label' }, 'Laatste Schouw'),
+                                            h('span', { className: 'location-detail-value' }, itemData.Laatste_x0020_schouw ? new Date(itemData.Laatste_x0020_schouw).toLocaleDateString('nl-NL') : '-')
+                                        ),
+                                        itemData.Waarschuwing && h('div', { className: 'location-detail' },
+                                            h('span', { className: 'location-detail-label' }, 'Waarschuwing'),
+                                            h('span', { className: 'location-detail-value', style: { color: '#d97706', fontWeight: 'bold' } }, 'Ja')
+                                        ),
+                                        itemData.Contactpersoon && h('div', { className: 'location-detail' },
+                                            h('span', { className: 'location-detail-label' }, 'Contactpersoon'),
+                                            h('span', { className: 'location-detail-value' }, itemData.Contactpersoon.Title || 'Onbekend')
+                                        )
+                                    ),
+                                    h('div', { className: 'location-links' },
+                                        itemData.Link_x0020_Algemeen_x0020_PV && h('a', { 
+                                            href: itemData.Link_x0020_Algemeen_x0020_PV.Url, 
+                                            target: '_blank',
+                                            className: 'location-link'
+                                        }, h(Icons.Folder), itemData.Link_x0020_Algemeen_x0020_PV.Description || 'Algemeen PV'),
+                                        
+                                        itemData.Link_x0020_Schouwrapporten && h('a', { 
+                                            href: itemData.Link_x0020_Schouwrapporten.Url, 
+                                            target: '_blank',
+                                            className: 'location-link'
+                                        }, h(Icons.Folder), itemData.Link_x0020_Schouwrapporten.Description || 'Schouwrapporten')
+                                    )
+                                )
+                            )
+                        ),
+
                         h('div', { className: 'detail-section' },
                             h('h3', { className: 'detail-title' }, h(Icons.Alert), 'Actieve Problemen'),
                             activeProbs.length > 0 ?
@@ -632,7 +677,7 @@
             return h('div', null,
                 // Header
                 h('div', { className: 'portal-header' },
-                    h('h1', { className: 'portal-title' }, 'DDH Tree Navigator'),
+                    h('h1', { className: 'portal-title' }, 'Digitale handhaving en probleemlocaties'),
                     h('p', { className: 'portal-subtitle' }, 'Hiërarchische weergave van gemeentes, locaties en problemen')
                 ),
 

@@ -28,7 +28,7 @@ export const LIJST_RELATIES = {
     
     doelLijst: 'problemenPleeglocaties',
     doelLijstId: LIJSTEN.problemenPleeglocaties.lijstId,
-    doelSleutelVeld: 'ProbleemID', // Berekend veld in Problemen
+    doelSleutelVeld: 'ProbleemID', // Text veld in Problemen
     
     relatieType: 'oneToMany', // 1 DH locatie -> N problemen
     

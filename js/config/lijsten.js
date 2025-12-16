@@ -274,15 +274,14 @@ export const LIJST_PROBLEMEN_PLEEGLOCATIES = {
     probleemID: {
       titel: 'ProbleemID',
       interneNaam: 'ProbleemID',
-      type: 'Calculated',
+      type: 'Text',
       verborgen: false,
       verwijderbaar: true,
       verplicht: false,
       beschrijving: null,
       standaardWaarde: null,
       uniekeWaarden: false,
-      validatieFormule: null,
-      berekendeFormule: '=Gemeente&" - "&Pleeglocatie'
+      validatieFormule: null
     },
 
     // Lookup veld
@@ -641,8 +640,7 @@ export const LIJST_RELATIE_METADATA = {
   sleutelVelden: {
     problemenPleeglocaties: {
       veldNaam: 'ProbleemID',
-      interneNaam: 'ProbleemID',
-      berekening: 'Gemeente + " - " + Title (Pleeglocatie)'
+      interneNaam: 'ProbleemID'
     },
     digitaleHandhaving: {
       veldNaam: 'gemeenteID',
