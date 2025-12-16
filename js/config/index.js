@@ -94,8 +94,8 @@ export const valideerConfiguratie = () => {
   const problemenSleutel = DDH_CONFIG.lijsten.problemenPleeglocaties.velden.probleemID;
   const dhSleutel = DDH_CONFIG.lijsten.digitaleHandhaving.velden.gemeenteID;
   
-  if (!problemenSleutel || problemenSleutel.type !== 'Calculated') {
-    fouten.push('ProbleemID berekend veld ontbreekt of is niet van type Calculated');
+  if (!problemenSleutel || problemenSleutel.type !== 'Text') {
+    fouten.push('ProbleemID veld ontbreekt of is niet van type Text');
   }
   
   if (!dhSleutel || dhSleutel.type !== 'Calculated') {

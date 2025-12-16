@@ -39,11 +39,7 @@ export const LIJST_RELATIES = {
       formule: '[Gemeente] + " - " + [Title]'
     },
     
-    doelBerekening: {
-      veld1: 'Gemeente',
-      veld2: 'Title', // "Pleeglocatie" in UI
-      formule: '[Gemeente] + " - " + [Title]'
-    }
+    doelBerekening: null // Geen berekening nodig, is direct veld
   },
   
   /**
