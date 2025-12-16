@@ -216,9 +216,10 @@ export const RelatieQueries = {
     } = opties;
 
     // Haal eerst alle DH locaties op
-    let dhUrl = LIJSTEN.digitaleHandhaving.endpoints.alleItems();
+    // We voegen expliciet gemeenteID toe omdat berekende velden soms niet in * zitten
+    let dhUrl = LIJSTEN.digitaleHandhaving.endpoints.alleItems() + '?$select=*,gemeenteID';
     if (filterDH) {
-      dhUrl += `?$filter=${filterDH}`;
+      dhUrl += `&$filter=${filterDH}`;
     }
     
     const dhResponse = await fetch(dhUrl, {
