@@ -285,10 +285,16 @@ export const RelatieQueries = {
     console.log('Beschikbare Locatie sleutels (uit gemeenteID):', dhKeys);
 
     // Voeg problemen toe aan DH locaties met genormaliseerde matching
+    // We gebruiken nu een 'startsWith' check omdat ProbleemID vaak specifieker is (bv. "Locatie - C1")
+    // dan de algemene locatie ID (bv. "Locatie")
     const resultaat = dhLocaties.map(dhLocatie => {
-      // GEWIJZIGD: Gebruik gemeenteID (Calculated) veld direct
       const dhSleutel = RelatieHelpers.normaliseString(dhLocatie.gemeenteID);
-      const matchedProblemen = problemenPerLocatie[dhSleutel] || [];
+      
+      // Zoek problemen waarvan de ID begint met de locatie sleutel
+      const matchedProblemen = alleProblemen.filter(probleem => {
+        const pSleutel = RelatieHelpers.normaliseString(probleem.ProbleemID);
+        return pSleutel && dhSleutel && pSleutel.startsWith(dhSleutel);
+      });
       
       // Debug logging for each DH location
       if (matchedProblemen.length > 0) {
