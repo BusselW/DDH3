@@ -158,6 +158,7 @@
                     h('thead', null,
                         h('tr', null,
                             h('th', null, 'ID'),
+                            h('th', null, 'Gemeente'),
                             h('th', null, 'Beschrijving'),
                             h('th', null, 'Huidige Sleutel (ProbleemID)'),
                             h('th', null, 'Status'),
@@ -196,6 +197,7 @@
 
             return h('tr', null,
                 h('td', null, problem.Id),
+                h('td', null, problem.Gemeente),
                 h('td', null, 
                     h('div', { style: { fontWeight: 'bold' } }, problem.Title),
                     h('div', { style: { fontSize: '12px', color: '#64748b' } }, problem.Probleembeschrijving)
