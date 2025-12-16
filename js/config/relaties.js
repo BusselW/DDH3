@@ -268,22 +268,25 @@ export const RelatieQueries = {
     // Groepeer problemen per genormaliseerde sleutel voor snelle lookup
     const problemenPerLocatie = {};
     alleProblemen.forEach(probleem => {
-      // Use direct field matching with normalization
-      // In problems list: 'Title' field contains the pleeglocatie name
-      const sleutel = RelatieHelpers.genereerSleutelVanObject(probleem, 'Title');
-      if (!problemenPerLocatie[sleutel]) {
-        problemenPerLocatie[sleutel] = [];
+      // GEWIJZIGD: Gebruik ProbleemID veld direct zoals gevraagd
+      // We gebruiken normalisatie om kleine verschillen (hoofdletters/spaties) op te vangen
+      const sleutel = RelatieHelpers.normaliseString(probleem.ProbleemID);
+      
+      if (sleutel) {
+        if (!problemenPerLocatie[sleutel]) {
+          problemenPerLocatie[sleutel] = [];
+        }
+        problemenPerLocatie[sleutel].push(probleem);
       }
-      problemenPerLocatie[sleutel].push(probleem);
     });
 
     // Debug logging to see what keys are being generated
-    console.log('Problemen sleutels:', Object.keys(problemenPerLocatie));
+    console.log('Problemen sleutels (uit ProbleemID):', Object.keys(problemenPerLocatie));
 
     // Voeg problemen toe aan DH locaties met genormaliseerde matching
     const resultaat = dhLocaties.map(dhLocatie => {
-      // Use direct field matching with normalization instead of calculated gemeenteID
-      const dhSleutel = RelatieHelpers.genereerSleutelVanObject(dhLocatie, 'Title');
+      // GEWIJZIGD: Gebruik gemeenteID (Calculated) veld direct
+      const dhSleutel = RelatieHelpers.normaliseString(dhLocatie.gemeenteID);
       const matchedProblemen = problemenPerLocatie[dhSleutel] || [];
       
       // Debug logging for each DH location
