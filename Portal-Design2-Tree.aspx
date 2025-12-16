@@ -622,9 +622,19 @@
                                             h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Waarschuwing:'),
                                             h('span', { style: { fontWeight: '600', color: itemData.Waarschuwing ? '#d97706' : '#334155' } }, itemData.Waarschuwing ? 'Ja' : 'Nee')
                                         ),
+                                        itemData.Waarschuwing === 'Ja' && h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Waarschuwingsperiode:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155', fontSize: '13px' } }, 
+                                                `${itemData.Start_x0020_Waarschuwingsperiode ? new Date(itemData.Start_x0020_Waarschuwingsperiode).toLocaleDateString('nl-NL') : '?'} - ${itemData.Einde_x0020_Waarschuwingsperiode ? new Date(itemData.Einde_x0020_Waarschuwingsperiode).toLocaleDateString('nl-NL') : '?'}`
+                                            )
+                                        ),
                                         h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
                                             h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Contactpersoon:'),
                                             h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Contactpersoon?.Title || '-')
+                                        ),
+                                        itemData.E_x002d_mailadres_x0020_contactp && h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Email Contact:'),
+                                            h('a', { href: `mailto:${itemData.E_x002d_mailadres_x0020_contactp}`, style: { fontWeight: '600', color: '#3b82f6', textDecoration: 'none' } }, itemData.E_x002d_mailadres_x0020_contactp)
                                         )
                                     )
                                 ),
@@ -701,7 +711,42 @@
                                                 onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
                                                 onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
                                             }, h(Icons.FolderOpen))
-                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen schouwrapporten beschikbaar')
+                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen schouwrapporten beschikbaar'),
+
+                                        itemData.Instemmingsbesluit ? h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
+                                            // Primary Button (SharePoint)
+                                            h('a', { 
+                                                href: itemData.Instemmingsbesluit.Url, 
+                                                target: '_blank',
+                                                className: 'doc-link-primary',
+                                                style: { 
+                                                    flex: '1', display: 'flex', alignItems: 'center', gap: '12px', 
+                                                    padding: '12px', background: '#f8fafc', textDecoration: 'none', color: '#334155',
+                                                    transition: 'all 0.2s', borderRight: '1px solid #e2e8f0'
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#eff6ff'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f8fafc'; }
+                                            }, 
+                                                h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
+                                                h('div', null,
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Instemmingsbesluit.Description || 'Instemmingsbesluit'),
+                                                    h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open in SharePoint')
+                                                )
+                                            ),
+                                            // Secondary Button (UNC/Explorer)
+                                            h('a', { 
+                                                className: 'doc-link-secondary',
+                                                title: 'Open in Verkenner',
+                                                href: itemData.Instemmingsbesluit.Url.replace(/^https?:\/\//, 'file://'),
+                                                style: { 
+                                                    width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s',
+                                                    textDecoration: 'none', color: '#334155'
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
+                                            }, h(Icons.FolderOpen))
+                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen Instemmingsbesluit beschikbaar')
                                     )
                                 )
                             )
