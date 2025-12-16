@@ -280,6 +280,10 @@ export const RelatieQueries = {
     // Debug logging to see what keys are being generated
     console.log('Problemen sleutels (uit ProbleemID):', Object.keys(problemenPerLocatie));
 
+    // Debug logging to see what keys are available in DDH
+    const dhKeys = dhLocaties.map(dh => RelatieHelpers.normaliseString(dh.gemeenteID));
+    console.log('Beschikbare Locatie sleutels (uit gemeenteID):', dhKeys);
+
     // Voeg problemen toe aan DH locaties met genormaliseerde matching
     const resultaat = dhLocaties.map(dhLocatie => {
       // GEWIJZIGD: Gebruik gemeenteID (Calculated) veld direct
