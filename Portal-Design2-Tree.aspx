@@ -91,12 +91,14 @@
             font-weight: 600;
         }
         
-        /* Nieuwe stijl voor locaties met actieve problemen */
+        /* Nieuwe stijl voor items met actieve problemen (Gemeente & Locatie) */
+        .tree-item.gemeente.has-active-problems,
         .tree-item.locatie.has-active-problems {
-            background-color: #fff0f2; /* Soft Red background */
+            background-color: #fff1f2; /* Pastel Red background */
             border-color: #fecdd3;
-            color: #881337; /* Dark red text */
+            color: #be123c; /* Dark red text */
         }
+        .tree-item.gemeente.has-active-problems:hover,
         .tree-item.locatie.has-active-problems:hover {
             background-color: #ffe4e6;
         }
@@ -105,6 +107,13 @@
             margin-left: 18px;
             font-size: 13px;
         }
+        
+        /* Update icon colors for active problem items */
+        .tree-item.gemeente.has-active-problems .tree-type-icon,
+        .tree-item.locatie.has-active-problems .tree-type-icon {
+            color: #be123c;
+        }
+
         .tree-item.problem {
             margin-left: 36px;
             font-size: 12px;
@@ -137,9 +146,6 @@
         .tree-item.active .tree-type-icon {
             color: #2563eb;
         }
-        .tree-item.locatie.has-active-problems .tree-type-icon {
-            color: #9f1239; /* Darker red icon for active problem locations */
-        }
 
         .tree-text {
             flex: 1;
@@ -156,7 +162,7 @@
         
         /* Bordeaux Counter Badge */
         .tree-badge.bordeaux {
-            background: #800020; /* Bordeaux Color */
+            background: #9f1239; /* Matches the text color better now */
             color: #ffffff;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
@@ -239,6 +245,20 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
             transform: translateY(-2px);
         }
+        /* Active Problem Styling for Detail Cards */
+        .locatie-detail.has-active-problems {
+            background-color: #fff1f2;
+            border-color: #fecdd3;
+        }
+        .locatie-detail.has-active-problems:hover {
+            border-color: #be123c;
+            background-color: #ffe4e6;
+            box-shadow: 0 4px 12px rgba(190, 18, 60, 0.1);
+        }
+        .locatie-detail.has-active-problems .locatie-name {
+            color: #be123c;
+        }
+
         .locatie-info {
             display: grid;
             grid-template-columns: 1fr auto; gap: 16px; align-items: start;
@@ -520,7 +540,7 @@
                                 
                                 return h('div', { 
                                     key: location.Id, 
-                                    className: 'locatie-detail',
+                                    className: `locatie-detail ${activeProbs.length > 0 ? 'has-active-problems' : ''}`,
                                     onClick: () => {
                                         selectItem('locatie', location);
                                         if (!expandedNodes.has(location.Id)) {
@@ -634,16 +654,14 @@
                                                 )
                                             ),
                                             // Secondary Button (UNC/Explorer)
-                                            h('div', { 
+                                            h('a', { 
                                                 className: 'doc-link-secondary',
-                                                title: 'Kopieer pad naar Verkenner',
+                                                title: 'Open in Verkenner',
+                                                href: itemData.Link_x0020_Algemeen_x0020_PV.Url.replace(/^https?:\/\//, 'file://'),
                                                 style: { 
                                                     width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s'
-                                                },
-                                                onClick: () => {
-                                                    const uncPath = itemData.Link_x0020_Algemeen_x0020_PV.Url.replace(/^https?:\/\//, '\\\\').replace(/\//g, '\\');
-                                                    navigator.clipboard.writeText(uncPath).then(() => alert('Pad gekopieerd naar klembord:\n' + uncPath));
+                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s',
+                                                    textDecoration: 'none', color: '#334155'
                                                 },
                                                 onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
                                                 onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
@@ -671,16 +689,14 @@
                                                 )
                                             ),
                                             // Secondary Button (UNC/Explorer)
-                                            h('div', { 
+                                            h('a', { 
                                                 className: 'doc-link-secondary',
-                                                title: 'Kopieer pad naar Verkenner',
+                                                title: 'Open in Verkenner',
+                                                href: itemData.Link_x0020_Schouwrapporten.Url.replace(/^https?:\/\//, 'file://'),
                                                 style: { 
                                                     width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s'
-                                                },
-                                                onClick: () => {
-                                                    const uncPath = itemData.Link_x0020_Schouwrapporten.Url.replace(/^https?:\/\//, '\\\\').replace(/\//g, '\\');
-                                                    navigator.clipboard.writeText(uncPath).then(() => alert('Pad gekopieerd naar klembord:\n' + uncPath));
+                                                    background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s',
+                                                    textDecoration: 'none', color: '#334155'
                                                 },
                                                 onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
                                                 onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
@@ -806,7 +822,7 @@
                                 
                                 return h('div', { key: gemeente, className: 'tree-node' },
                                     h('div', {
-                                        className: `tree-item gemeente ${selectedItem.type === 'gemeente' && selectedItem.data === gemeente ? 'active' : ''}`,
+                                        className: `tree-item gemeente ${selectedItem.type === 'gemeente' && selectedItem.data === gemeente ? 'active' : ''} ${activeProblems > 0 ? 'has-active-problems' : ''}`,
                                         onClick: () => {
                                             selectItem('gemeente', gemeente);
                                             toggleNode(gemeente);
