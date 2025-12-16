@@ -232,6 +232,12 @@
             background: #f8fafc;
             border-radius: 12px; padding: 24px; margin-bottom: 16px;
             border: 1px solid #e2e8f0;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .locatie-detail:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
         }
         .locatie-info {
             display: grid;
@@ -512,7 +518,16 @@
                                 const problems = location.problemen || [];
                                 const activeProbs = problems.filter(p => p.Opgelost_x003f_ !== 'Opgelost');
                                 
-                                return h('div', { key: location.Id, className: 'locatie-detail' },
+                                return h('div', { 
+                                    key: location.Id, 
+                                    className: 'locatie-detail',
+                                    onClick: () => {
+                                        selectItem('locatie', location);
+                                        if (!expandedNodes.has(location.Id)) {
+                                            toggleNode(location.Id);
+                                        }
+                                    }
+                                },
                                     h('div', { className: 'locatie-info' },
                                         h('div', null,
                                             h('h4', { className: 'locatie-name' }, 
@@ -565,42 +580,78 @@
                         // --- Nieuwe Locatie Details Sectie ---
                         h('div', { className: 'detail-section' },
                             h('h3', { className: 'detail-title' }, h(Icons.Location), 'Locatie Details'),
-                            h('div', { className: 'locatie-detail' },
-                                h('div', { className: 'locatie-info' },
-                                    h('div', { className: 'location-details' },
-                                        h('div', { className: 'location-detail' },
-                                            h('span', { className: 'location-detail-label' }, 'Status B&S'),
-                                            h('span', { className: 'location-detail-value' }, itemData.Status_x0020_B_x0026_S || '-')
+                            
+                            h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' } },
+                                // Card 1: Algemene Info
+                                h('div', { className: 'detail-card', style: { height: '100%', padding: '20px' } },
+                                    h('h4', { style: { marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: '#1e293b' } }, 'Algemene Informatie'),
+                                    h('div', { className: 'location-details-grid', style: { display: 'grid', gap: '12px' } },
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Status B&S:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Status_x0020_B_x0026_S || '-')
                                         ),
-                                        h('div', { className: 'location-detail' },
-                                            h('span', { className: 'location-detail-label' }, 'Feitcodegroep'),
-                                            h('span', { className: 'location-detail-value' }, itemData.Feitcodegroep || '-')
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Feitcodegroep:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Feitcodegroep || '-')
                                         ),
-                                        h('div', { className: 'location-detail' },
-                                            h('span', { className: 'location-detail-label' }, 'Laatste Schouw'),
-                                            h('span', { className: 'location-detail-value' }, itemData.Laatste_x0020_schouw ? new Date(itemData.Laatste_x0020_schouw).toLocaleDateString('nl-NL') : '-')
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Laatste Schouw:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Laatste_x0020_schouw ? new Date(itemData.Laatste_x0020_schouw).toLocaleDateString('nl-NL') : '-')
                                         ),
-                                        itemData.Waarschuwing && h('div', { className: 'location-detail' },
-                                            h('span', { className: 'location-detail-label' }, 'Waarschuwing'),
-                                            h('span', { className: 'location-detail-value', style: { color: '#d97706', fontWeight: 'bold' } }, 'Ja')
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Waarschuwing:'),
+                                            h('span', { style: { fontWeight: '600', color: itemData.Waarschuwing ? '#d97706' : '#334155' } }, itemData.Waarschuwing ? 'Ja' : 'Nee')
                                         ),
-                                        itemData.Contactpersoon && h('div', { className: 'location-detail' },
-                                            h('span', { className: 'location-detail-label' }, 'Contactpersoon'),
-                                            h('span', { className: 'location-detail-value' }, itemData.Contactpersoon.Title || 'Onbekend')
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Contactpersoon:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Contactpersoon?.Title || '-')
                                         )
-                                    ),
-                                    h('div', { className: 'location-links' },
-                                        itemData.Link_x0020_Algemeen_x0020_PV && h('a', { 
+                                    )
+                                ),
+
+                                // Card 2: Documenten & Links
+                                h('div', { className: 'detail-card', style: { height: '100%', padding: '20px' } },
+                                    h('h4', { style: { marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: '#1e293b' } }, 'Documenten & Links'),
+                                    h('div', { className: 'links-grid', style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
+                                        itemData.Link_x0020_Algemeen_x0020_PV ? h('a', { 
                                             href: itemData.Link_x0020_Algemeen_x0020_PV.Url, 
                                             target: '_blank',
-                                            className: 'location-link'
-                                        }, h(Icons.Folder), itemData.Link_x0020_Algemeen_x0020_PV.Description || 'Algemeen PV'),
-                                        
-                                        itemData.Link_x0020_Schouwrapporten && h('a', { 
+                                            className: 'doc-link-card',
+                                            style: { 
+                                                display: 'flex', alignItems: 'center', gap: '12px', 
+                                                padding: '12px', background: '#f8fafc', borderRadius: '8px',
+                                                textDecoration: 'none', color: '#334155', border: '1px solid #e2e8f0',
+                                                transition: 'all 0.2s', cursor: 'pointer'
+                                            },
+                                            onMouseOver: (e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff'; },
+                                            onMouseOut: (e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }
+                                        }, 
+                                            h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
+                                            h('div', null,
+                                                h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Algemeen_x0020_PV.Description || 'Algemeen PV'),
+                                                h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Klik om document te openen')
+                                            )
+                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen Algemeen PV beschikbaar'),
+
+                                        itemData.Link_x0020_Schouwrapporten ? h('a', { 
                                             href: itemData.Link_x0020_Schouwrapporten.Url, 
                                             target: '_blank',
-                                            className: 'location-link'
-                                        }, h(Icons.Folder), itemData.Link_x0020_Schouwrapporten.Description || 'Schouwrapporten')
+                                            className: 'doc-link-card',
+                                            style: { 
+                                                display: 'flex', alignItems: 'center', gap: '12px', 
+                                                padding: '12px', background: '#f8fafc', borderRadius: '8px',
+                                                textDecoration: 'none', color: '#334155', border: '1px solid #e2e8f0',
+                                                transition: 'all 0.2s', cursor: 'pointer'
+                                            },
+                                            onMouseOver: (e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#eff6ff'; },
+                                            onMouseOut: (e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }
+                                        }, 
+                                            h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
+                                            h('div', null,
+                                                h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Schouwrapporten.Description || 'Schouwrapporten'),
+                                                h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Klik om map te openen')
+                                            )
+                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen schouwrapporten beschikbaar')
                                     )
                                 )
                             )
