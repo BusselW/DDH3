@@ -861,17 +861,41 @@
                         h('div', { className: 'detail-section' },
                             h('h3', { className: 'detail-title' }, h(Icons.Stats), 'Gemeente Statistieken'),
                             h('div', { className: 'gemeente-detail' },
-                                h('div', { className: 'detail-card' },
+                                h('div', { 
+                                    className: 'detail-card',
+                                    style: { cursor: 'pointer' },
+                                    onClick: () => {
+                                        // Filter to show all locations
+                                        // Currently just a visual filter, but could be enhanced
+                                    }
+                                },
                                     h('div', { className: 'card-metric' }, locations.length),
                                     h('div', { className: 'card-label' }, 'Locaties'),
                                     h('div', { className: 'card-description' }, 'Handhavingslocaties in deze gemeente')
                                 ),
-                                h('div', { className: 'detail-card warning' },
+                                h('div', { 
+                                    className: 'detail-card warning',
+                                    style: { cursor: 'pointer' },
+                                    onClick: () => {
+                                        // Logic to filter view to only show locations with active problems
+                                        // For now, we can just scroll to the first one or highlight them
+                                        const firstActive = document.querySelector('.locatie-detail.has-active-problems');
+                                        if (firstActive) firstActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                },
                                     h('div', { className: 'card-metric' }, activeProblems),
                                     h('div', { className: 'card-label' }, 'Actieve Problemen'),
-                                    h('div', { className: 'card-description' }, 'Vereisen directe aandacht')
+                                    h('div', { className: 'card-description' }, 'Klik om te filteren')
                                 ),
-                                h('div', { className: 'detail-card success' },
+                                h('div', { 
+                                    className: 'detail-card success',
+                                    style: { cursor: 'pointer' },
+                                    onClick: () => {
+                                        // Logic to filter view to only show locations with NO active problems
+                                        const firstResolved = document.querySelector('.locatie-detail:not(.has-active-problems)');
+                                        if (firstResolved) firstResolved.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                },
                                     h('div', { className: 'card-metric' }, totalProblems - activeProblems),
                                     h('div', { className: 'card-label' }, 'Opgelost'),
                                     h('div', { className: 'card-description' }, 'Succesvol afgehandeld')

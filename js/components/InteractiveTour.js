@@ -20,9 +20,26 @@ export const InteractiveTour = ({ isOpen, onClose }) => {
             content: 'Gebruik de boomstructuur om door gemeentes en locaties te bladeren. U kunt ook zoeken op naam.'
         },
         {
+            target: '.tree-item.gemeente',
+            title: 'Stap 1: Gemeente Selecteren',
+            content: 'Klik op een gemeente (bijv. Amsterdam) om de onderliggende locaties te zien. Klik op het pijltje om uit te klappen.'
+        },
+        {
+            target: '.tree-item.locatie',
+            title: 'Stap 2: Locatie Selecteren',
+            content: 'Klik op een locatie om de details en eventuele problemen te bekijken. Locaties met actieve problemen zijn rood gemarkeerd.',
+            condition: () => document.querySelector('.tree-item.locatie') !== null
+        },
+        {
             target: '.content-area',
-            title: 'Details',
-            content: 'Hier verschijnt de gedetailleerde informatie van het geselecteerde item, inclusief status, documenten en acties.'
+            title: 'Details & Statistieken',
+            content: 'Hier ziet u de details. Bovenin staan statistieken (tegels). Deze zijn klikbaar! Klik op "Actieve Problemen" om direct naar locaties met problemen te gaan.'
+        },
+        {
+            target: '.detail-card.warning',
+            title: 'Interactieve Statistieken',
+            content: 'Probeer het eens: klik op deze tegel om te filteren op actieve problemen.',
+            condition: () => document.querySelector('.detail-card.warning') !== null
         },
         {
             target: '.admin-menu',
