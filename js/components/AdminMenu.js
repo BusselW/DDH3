@@ -157,6 +157,21 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
     const [modalMode, setModalMode] = useState('create'); // create, edit, createProblem, editProblem
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
+    const [ddhLocations, setDdhLocations] = useState([]);
+
+    useEffect(() => {
+        const loadLocations = async () => {
+            try {
+                const locs = await DDHAdminService.getDDHLocations();
+                // Sort by gemeenteID
+                locs.sort((a, b) => (a.gemeenteID || '').localeCompare(b.gemeenteID || ''));
+                setDdhLocations(locs);
+            } catch (e) {
+                console.error("Error loading DDH locations", e);
+            }
+        };
+        if (isAdmin) loadLocations();
+    }, [isAdmin]);
     
     const isDDHSelected = selectedItem?.type === 'locatie';
 
@@ -212,7 +227,8 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
         setModalMode('createProblem');
         setFormData({
             Title: '', Gemeente: '', Feitcodegroep: 'Verkeersborden', 
-            Status: 'Aangemeld', ActieBeoordelaars: 'Geen actie nodig'
+            Status: 'Aangemeld', ActieBeoordelaars: 'Geen actie nodig',
+            ProbleemID: ''
         });
         setIsModalOpen(true);
     };
@@ -229,7 +245,8 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
             Status: p.Opgelost_x003f_,
             ActieBeoordelaars: p.Actie_x0020_Beoordelaars,
             BeoordelaarId: p.Beoordelaar?.Id,
-            Beoordelaar: p.Beoordelaar // For display context if needed
+            Beoordelaar: p.Beoordelaar, // For display context if needed
+            ProbleemID: p.ProbleemID || ''
         });
         setIsModalOpen(true);
     };
@@ -486,6 +503,14 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                                 onChange: v => setFormData({...formData, Feitcodegroep: v}),
                                 options: ['Verkeersborden', 'Parkeren', 'Rijgedrag'],
                                 required: true
+                            })
+                        ),
+                        h(FormField, { label: 'Koppel aan DDH Locatie (ProbleemID)', colSpan: 2 },
+                            h(SelectField, {
+                                value: formData.ProbleemID,
+                                onChange: v => setFormData({...formData, ProbleemID: v}),
+                                options: ddhLocations.map(l => l.gemeenteID).filter(Boolean),
+                                required: false
                             })
                         )
                     ),

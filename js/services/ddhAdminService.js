@@ -54,8 +54,19 @@ export const DDHAdminService = {
 
     getProblems: async () => {
         const endpoint = DDH_CONFIG.lijsten.problemenPleeglocaties.endpoints.alleItems() + 
-            "?$select=Id,Title,Gemeente,Feitcodegroep,Probleembeschrijving,Opgelost_x003f_,Actie_x0020_Beoordelaars,Aanmaakdatum,Beoordelaar/Title,Beoordelaar/Id,Beoordelaar/EMail" +
+            "?$select=Id,Title,Gemeente,Feitcodegroep,Probleembeschrijving,Opgelost_x003f_,Actie_x0020_Beoordelaars,Aanmaakdatum,Beoordelaar/Title,Beoordelaar/Id,Beoordelaar/EMail,ProbleemID" +
             "&$expand=Beoordelaar";
+        
+        const response = await fetch(endpoint, {
+            headers: { "Accept": "application/json; odata=verbose" }
+        });
+        const data = await response.json();
+        return data.d && data.d.results ? data.d.results : [];
+    },
+
+    getDDHLocations: async () => {
+        const endpoint = DDH_CONFIG.lijsten.digitaleHandhaving.endpoints.alleItems() + 
+            "?$select=Id,Title,gemeenteID&$top=5000";
         
         const response = await fetch(endpoint, {
             headers: { "Accept": "application/json; odata=verbose" }
@@ -221,7 +232,8 @@ export const DDHAdminService = {
             Probleembeschrijving: data.Probleembeschrijving,
             Opgelost_x003f_: data.Status,
             Actie_x0020_Beoordelaars: data.ActieBeoordelaars,
-            Aanmaakdatum: new Date().toISOString()
+            Aanmaakdatum: new Date().toISOString(),
+            ProbleemID: data.ProbleemID
         };
 
         if (data.BeoordelaarId) {
@@ -253,7 +265,8 @@ export const DDHAdminService = {
             Feitcodegroep: data.Feitcodegroep,
             Probleembeschrijving: data.Probleembeschrijving,
             Opgelost_x003f_: data.Status,
-            Actie_x0020_Beoordelaars: data.ActieBeoordelaars
+            Actie_x0020_Beoordelaars: data.ActieBeoordelaars,
+            ProbleemID: data.ProbleemID
         };
 
         if (data.BeoordelaarId) {
