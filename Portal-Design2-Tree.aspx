@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digitale handhaving en probleemlocaties</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d=%22M50 5 L10 20 V45 C10 70 25 90 50 95 C75 90 90 70 90 45 V20 L50 5 Z%22 fill=%22%233b82f6%22/><path d=%22M30 50 L45 65 L70 35%22 fill=%22none%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
     
     <style>
         * { box-sizing: border-box; }
@@ -1027,7 +1028,7 @@
                                             
                                             // Action & Explanation Section
                                             (problem.Actie_x0020_Beoordelaars || problem.Uitleg_x0020_actie_x0020_beoorde) && h('div', { 
-                                                style: problem.Uitleg_x0020_actie_x0020_beoorde ? 
+                                                style: (problem.Uitleg_x0020_actie_x0020_beoorde || (problem.Actie_x0020_Beoordelaars && problem.Actie_x0020_Beoordelaars !== 'Geen actie nodig')) ? 
                                                     { background: '#fff7ed', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #fdba74', borderLeft: '4px solid #f97316' } :
                                                     { background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #e2e8f0' }
                                             },
