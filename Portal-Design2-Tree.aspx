@@ -452,9 +452,10 @@
         const { createRoot } = window.ReactDOM;
 
         // Import configuration and navigation
-        const { DDH_CONFIG } = await import('./js/config/index.js');
-        const { TEMP_PLACEHOLDER_DATA } = await import('./js/components/pageNavigation.js');
-        const { AdminMenu } = await import('./js/components/AdminMenu.js');
+        const v = Date.now();
+        const { DDH_CONFIG } = await import('./js/config/index.js?v=' + v);
+        const { TEMP_PLACEHOLDER_DATA } = await import('./js/components/pageNavigation.js?v=' + v);
+        const { AdminMenu } = await import('./js/components/AdminMenu.js?v=' + v);
         // FooterNavigation removed as per request
 
         // --- Inline SVG Icons Component Set ---
