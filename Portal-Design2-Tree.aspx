@@ -525,48 +525,54 @@
                         const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
                         let allGroups = new Set();
 
-                        // Helper to fetch groups from a specific web URL
-                        const fetchGroups = async (webUrl) => {
+                        const fetchFromUrl = async (url) => {
                             try {
-                                // Ensure no double slashes (except protocol)
-                                const url = webUrl.replace(/\/+$/, "") + "/_api/web/currentuser/groups";
                                 console.log("Fetching groups from:", url);
-                                const res = await fetch(url, { 
-                                    headers: { "Accept": "application/json;odata=verbose" } 
-                                });
+                                const res = await fetch(url, { headers: { "Accept": "application/json;odata=verbose" } });
                                 if (res.ok) {
                                     const data = await res.json();
                                     if (data.d && data.d.results) {
+                                        console.log(`Found ${data.d.results.length} groups at ${url}`);
                                         data.d.results.forEach(g => allGroups.add(g.Title));
                                     }
+                                } else {
+                                    console.log(`Fetch failed ${res.status} for ${url}`);
                                 }
-                            } catch (e) {
-                                console.warn("Failed to fetch groups from " + webUrl, e);
-                            }
+                            } catch(e) { console.log("Fetch error for:", url, e); }
                         };
 
-                        // Get Context Info
-                        let currentWebUrl = "";
-                        let siteUrl = "";
-                        
+                        // 1. Try standard SharePoint Context
                         if (window._spPageContextInfo) {
-                            currentWebUrl = window._spPageContextInfo.webAbsoluteUrl || "";
-                            siteUrl = window._spPageContextInfo.siteAbsoluteUrl || "";
+                            console.log("SP Context found. Web:", window._spPageContextInfo.webAbsoluteUrl);
+                            if (window._spPageContextInfo.webAbsoluteUrl) {
+                                await fetchFromUrl(window._spPageContextInfo.webAbsoluteUrl + "/_api/web/currentuser/groups");
+                            }
+                            if (window._spPageContextInfo.siteAbsoluteUrl && window._spPageContextInfo.siteAbsoluteUrl !== window._spPageContextInfo.webAbsoluteUrl) {
+                                await fetchFromUrl(window._spPageContextInfo.siteAbsoluteUrl + "/_api/web/currentuser/groups");
+                            }
+                        } else {
+                            console.warn("_spPageContextInfo is missing. Attempting URL heuristics.");
                         }
 
-                        // 1. Fetch from Current Web
-                        await fetchGroups(currentWebUrl);
-
-                        // 2. Fetch from Root Web (if different and available)
-                        if (siteUrl && siteUrl !== currentWebUrl) {
-                            await fetchGroups(siteUrl);
+                        // 2. URL Heuristics (Fallback if context is missing or incorrect)
+                        // Detect /sites/SiteName pattern
+                        const path = window.location.pathname;
+                        const sitesMatch = path.match(/(\/sites\/[^\/]+)/i);
+                        if (sitesMatch) {
+                            const siteUrl = sitesMatch[1];
+                            // Avoid duplicate call if we already hit it via context
+                            if (!window._spPageContextInfo || window._spPageContextInfo.webAbsoluteUrl.indexOf(siteUrl) === -1) {
+                                await fetchFromUrl(siteUrl + "/_api/web/currentuser/groups");
+                            }
                         }
 
-                        // 3. Check Site Admin (Super User) on current web
+                        // 3. Site Admin Check (Super User)
                         try {
-                            const userRes = await fetch((currentWebUrl || "") + "/_api/web/currentuser", {
-                                headers: { "Accept": "application/json;odata=verbose" }
-                            });
+                            let userUrl = "/_api/web/currentuser";
+                            if (window._spPageContextInfo && window._spPageContextInfo.webAbsoluteUrl) {
+                                userUrl = window._spPageContextInfo.webAbsoluteUrl + "/_api/web/currentuser";
+                            }
+                            const userRes = await fetch(userUrl, { headers: { "Accept": "application/json;odata=verbose" } });
                             if (userRes.ok) {
                                 const userData = await userRes.json();
                                 if (userData.d && userData.d.IsSiteAdmin) {
@@ -579,16 +585,15 @@
 
                         // 4. Validate Groups
                         const groupsList = Array.from(allGroups);
-                        console.log("All found groups (Current + Root):", groupsList);
+                        console.log("Final Consolidated Group List:", groupsList);
 
-                        // Case insensitive check
                         const isAuthorized = groupsList.some(g => allowed.some(a => a.toLowerCase() === g.toLowerCase()));
                         
                         if (isAuthorized) {
                             console.log("Admin authorized via Group.");
                             setIsAdmin(true);
                         } else {
-                            console.warn("User not in allowed admin groups. Found:", groupsList);
+                            console.warn("User not in allowed admin groups.");
                         }
 
                     } catch (e) {
