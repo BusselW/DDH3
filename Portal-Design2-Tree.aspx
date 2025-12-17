@@ -687,16 +687,66 @@
                                     h('div', { className: 'card-label' }, 'Handhavingslocaties'),
                                     h('div', { className: 'card-description' }, 'Actieve locaties voor digitale handhaving')
                                 ),
-                                h('div', { className: 'detail-card warning' },
+                                h('div', { 
+                                    className: 'detail-card warning',
+                                    style: { cursor: 'pointer', transition: 'transform 0.2s' },
+                                    onClick: () => selectItem('active-problems-overview', null),
+                                    onMouseOver: (e) => e.currentTarget.style.transform = 'translateY(-2px)',
+                                    onMouseOut: (e) => e.currentTarget.style.transform = 'none'
+                                },
                                     h('div', { className: 'card-metric' }, stats.activeProblems),
                                     h('div', { className: 'card-label' }, 'Actieve Problemen'),
-                                    h('div', { className: 'card-description' }, 'Problemen die aandacht vereisen')
+                                    h('div', { className: 'card-description' }, 'Klik voor overzicht per gemeente')
                                 ),
                                 h('div', { className: 'detail-card success' },
                                     h('div', { className: 'card-metric' }, stats.totalProblems - stats.activeProblems),
                                     h('div', { className: 'card-label' }, 'Opgeloste Problemen'),
                                     h('div', { className: 'card-description' }, 'Succesvol afgehandelde meldingen')
                                 )
+                            )
+                        )
+                    );
+                }
+
+                if (type === 'active-problems-overview') {
+                    // Filter gemeentes with active problems
+                    const gemeentesWithProblems = Object.entries(groupedData).filter(([gemeente, locations]) => {
+                        return locations.some(loc => 
+                            (loc.problemen || []).some(p => p.Opgelost_x003f_ !== 'Opgelost')
+                        );
+                    }).sort((a, b) => a[0].localeCompare(b[0]));
+
+                    return h('div', null,
+                        h('div', { className: 'breadcrumb' },
+                            h('span', { className: 'breadcrumb-item', onClick: () => selectItem('overview', null) }, 
+                                h(Icons.Home), 'Overzicht'
+                            ),
+                            h('span', { className: 'breadcrumb-separator' }, h(Icons.ChevronRight)),
+                            h('span', { className: 'breadcrumb-item' }, h(Icons.Alert), 'Actieve Problemen')
+                        ),
+                        h('div', { className: 'content-header' },
+                            h('h2', { className: 'content-title' }, 'Gemeentes met Actieve Problemen'),
+                            h('p', { className: 'content-subtitle' }, 'Selecteer een gemeente om de locaties te bekijken')
+                        ),
+                        h('div', { className: 'detail-section' },
+                            h('div', { className: 'gemeente-detail' },
+                                gemeentesWithProblems.map(([gemeente, locations]) => {
+                                    const activeCount = locations.reduce((sum, loc) => 
+                                        sum + (loc.problemen?.filter(p => p.Opgelost_x003f_ !== 'Opgelost').length || 0), 0);
+                                    
+                                    return h('div', { 
+                                        key: gemeente,
+                                        className: 'detail-card warning',
+                                        style: { cursor: 'pointer', transition: 'transform 0.2s' },
+                                        onClick: () => selectItem('gemeente', gemeente),
+                                        onMouseOver: (e) => e.currentTarget.style.transform = 'translateY(-2px)',
+                                        onMouseOut: (e) => e.currentTarget.style.transform = 'none'
+                                    },
+                                        h('div', { className: 'card-metric' }, activeCount),
+                                        h('div', { className: 'card-label' }, gemeente),
+                                        h('div', { className: 'card-description' }, `${locations.length} locaties in totaal`)
+                                    );
+                                })
                             )
                         )
                     );
