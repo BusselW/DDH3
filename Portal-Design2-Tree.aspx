@@ -508,10 +508,14 @@
         const { DDH_CONFIG } = await import('./js/config/index.js?v=' + v);
         const { TEMP_PLACEHOLDER_DATA } = await import('./js/components/pageNavigation.js?v=' + v);
         const { AdminMenu } = await import('./js/components/AdminMenu.js?v=' + v);
+        const { ManualModal } = await import('./js/components/ManualModal.js?v=' + v);
+        const { InteractiveTour } = await import('./js/components/InteractiveTour.js?v=' + v);
         // FooterNavigation removed as per request
 
         // --- Inline SVG Icons Component Set ---
         const Icons = {
+            Book: () => h('svg', {width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('path', {d: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20"}), h('path', {d: "M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"})),
+            HelpCircle: () => h('svg', {width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('circle', {cx: "12", cy: "12", r: "10"}), h('path', {d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"}), h('line', {x1: "12", y1: "17", x2: "12.01", y2: "17"})),
             ChevronRight: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('polyline', {points: "9 18 15 12 9 6"})),
             ChevronDown: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('polyline', {points: "6 9 12 15 18 9"})),
             Home: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('path', {d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"}), h('polyline', {points: "9 22 9 12 15 12 15 22"})),
@@ -539,6 +543,8 @@
             const [expandedNodes, setExpandedNodes] = useState(new Set());
             const [isAdmin, setIsAdmin] = useState(false);
             const [adminSelectedProblem, setAdminSelectedProblem] = useState(null);
+            const [showManual, setShowManual] = useState(false);
+            const [showTour, setShowTour] = useState(false);
 
             useEffect(() => {
                 const checkAdmin = async () => {
@@ -1279,8 +1285,36 @@
                     h('div', { className: 'header-content' },
                         h('h1', { className: 'portal-title' }, 'Digitale handhaving en probleemlocaties'),
                         h('p', { className: 'portal-subtitle' }, 'Hi\u00EBrarchische weergave van gemeentes, locaties en problemen')
+                    ),
+                    h('div', { style: { display: 'flex', gap: '12px', alignItems: 'flex-end' } },
+                        h('button', {
+                            title: 'Handleiding',
+                            onClick: () => setShowManual(true),
+                            style: { 
+                                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', 
+                                borderRadius: '8px', padding: '10px', cursor: 'pointer', color: 'white',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s'
+                            },
+                            onMouseOver: (e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)',
+                            onMouseOut: (e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                        }, h(Icons.Book)),
+                        h('button', {
+                            title: 'Interactieve Tour',
+                            onClick: () => setShowTour(true),
+                            style: { 
+                                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', 
+                                borderRadius: '8px', padding: '10px', cursor: 'pointer', color: 'white',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s'
+                            },
+                            onMouseOver: (e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)',
+                            onMouseOut: (e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                        }, h(Icons.HelpCircle))
                     )
                 ),
+
+                // Modals
+                h(ManualModal, { isOpen: showManual, onClose: () => setShowManual(false) }),
+                h(InteractiveTour, { isOpen: showTour, onClose: () => setShowTour(false) }),
 
                 // Recent Changes Bar
                 h('div', { className: 'recent-changes-bar' },
