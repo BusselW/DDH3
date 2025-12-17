@@ -485,6 +485,7 @@
             const [selectedItem, setSelectedItem] = useState({ type: 'overview', data: null });
             const [expandedNodes, setExpandedNodes] = useState(new Set());
             const [isAdmin, setIsAdmin] = useState(false);
+            const [adminSelectedProblem, setAdminSelectedProblem] = useState(null);
 
             useEffect(() => {
                 const checkAdmin = async () => {
@@ -1251,10 +1252,26 @@
                                                 const isActive = problem.Opgelost_x003f_ !== 'Opgelost';
                                                 return h('div', {
                                                     key: problem.Id,
-                                                    className: `tree-item problem ${isActive ? 'active-problem' : 'resolved-problem'}`
+                                                    className: `tree-item problem ${isActive ? 'active-problem' : 'resolved-problem'}`,
+                                                    onClick: (e) => {
+                                                        e.stopPropagation();
+                                                        handleSelect({ type: 'problem', data: problem });
+                                                    }
                                                 },
                                                     // No Toggle Icon
                                                     h('div', { className: 'tree-toggle' }),
+                                                    
+                                                    // Admin Checkbox
+                                                    isAdmin && h('input', {
+                                                        type: 'checkbox',
+                                                        checked: adminSelectedProblem?.Id === problem.Id,
+                                                        onChange: (e) => {
+                                                            e.stopPropagation();
+                                                            setAdminSelectedProblem(e.target.checked ? problem : null);
+                                                        },
+                                                        style: { marginRight: '8px', cursor: 'pointer' }
+                                                    }),
+
                                                     // Type Icon
                                                     h('div', { className: 'tree-type-icon' }, 
                                                         isActive ? h(Icons.Alert) : h(Icons.CheckCircle)
@@ -1274,7 +1291,15 @@
                 ),
                 
                 // Admin Menu
-                h(AdminMenu, { selectedItem, isAdmin, onRefresh: () => loadData(false) })
+                h(AdminMenu, { 
+                    selectedItem, 
+                    selectedProblem: adminSelectedProblem,
+                    isAdmin, 
+                    onRefresh: () => {
+                        loadData(false);
+                        setAdminSelectedProblem(null);
+                    }
+                })
             );
         };
 

@@ -150,7 +150,7 @@ const PeoplePicker = ({ value, onChange }) => {
 
 // --- Main Component ---
 
-export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
+export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh }) => {
     if (!isAdmin) return null;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,27 +158,7 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
     
-    // Problem Management State
-    const [problems, setProblems] = useState([]);
-    const [selectedProblemId, setSelectedProblemId] = useState('');
-
     const isDDHSelected = selectedItem?.type === 'locatie';
-    const selectedProblem = Array.isArray(problems) ? problems.find(p => p.Id === parseInt(selectedProblemId)) : null;
-
-    useEffect(() => {
-        loadProblems();
-    }, []);
-
-    const loadProblems = async () => {
-        try {
-            const data = await DDHAdminService.getProblems();
-            console.log("Loaded problems:", data);
-            setProblems(Array.isArray(data) ? data : []);
-        } catch (e) {
-            console.error("Error loading problems", e);
-            setProblems([]);
-        }
-    };
 
     // --- Location Handlers ---
     const handleCreate = () => {
@@ -261,8 +241,7 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                 setLoading(true);
                 await DDHAdminService.deleteProblem(selectedProblem.Id);
                 alert('Probleem verwijderd');
-                loadProblems();
-                setSelectedProblemId('');
+                onRefresh();
             } catch (e) {
                 alert('Fout: ' + e.message);
             } finally {
@@ -284,7 +263,7 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                     await DDHAdminService.updateProblem(selectedProblem.Id, serviceData);
                     alert('Probleem bijgewerkt');
                 }
-                loadProblems();
+                onRefresh();
             } else {
                 const serviceData = {
                     ...formData,
@@ -346,35 +325,25 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
             
             // --- Problemen Section ---
             h('div', { className: 'admin-section' },
-                h('div', { className: 'admin-section-title', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, 
-                    `Problemen (${problems?.length || 0})`,
-                    h('button', { 
-                        onClick: loadProblems, 
-                        style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#3b82f6', padding: '0 4px' },
-                        title: 'Lijst verversen'
-                    }, '↻')
-                ),
-                h('select', {
-                    value: selectedProblemId,
-                    onChange: e => setSelectedProblemId(e.target.value),
-                    style: { width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #cbd5e1', borderRadius: '6px' }
-                },
-                    h('option', { value: '' }, (problems?.length || 0) === 0 ? 'Geen problemen gevonden' : '-- Selecteer een probleem --'),
-                    (problems || []).map(p => h('option', { key: p.Id, value: p.Id }, `${p.Title} - ${p.Gemeente}`))
-                ),
+                h('div', { className: 'admin-section-title' }, 'Problemen'),
+                selectedProblem ? h('div', { style: { marginBottom: '10px', padding: '8px', background: '#f1f5f9', borderRadius: '6px', fontSize: '13px', border: '1px solid #e2e8f0' } },
+                    h('div', { style: { fontWeight: '600' } }, selectedProblem.Title),
+                    h('div', { style: { color: '#64748b' } }, selectedProblem.Gemeente)
+                ) : h('div', { style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', marginBottom: '10px' } }, 'Selecteer een probleem in de boomstructuur...'),
+                
                 h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading }, 
                     h(Icons.Plus), 'Toevoegen'
                 ),
                 h('button', { 
                     className: 'admin-btn', 
-                    disabled: !selectedProblemId || loading,
+                    disabled: !selectedProblem || loading,
                     onClick: handleEditProblem
                 }, 
                     h(Icons.Edit), 'Bewerken'
                 ),
                 h('button', { 
                     className: 'admin-btn danger',
-                    disabled: !selectedProblemId || loading,
+                    disabled: !selectedProblem || loading,
                     onClick: handleDeleteProblem
                 }, 
                     h(Icons.Trash), 'Verwijderen'
