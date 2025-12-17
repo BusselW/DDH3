@@ -26,9 +26,14 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     );
 };
 
-const FormField = ({ label, required, children }) => h('div', { style: { marginBottom: '15px' } },
-    h('label', { style: { display: 'block', marginBottom: '5px', fontWeight: '600', fontSize: '14px', color: '#334155' } }, 
-        label, required && h('span', { style: { color: 'red', marginLeft: '4px' } }, '*')
+const FormSection = ({ title, children, columns = 2 }) => h('div', { style: { marginBottom: '24px', background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' } },
+    h('h4', { style: { margin: '0 0 16px 0', color: '#0f172a', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' } }, title),
+    h('div', { style: { display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: '20px' } }, children)
+);
+
+const FormField = ({ label, required, children, colSpan = 1 }) => h('div', { style: { marginBottom: '0', gridColumn: `span ${colSpan}` } },
+    h('label', { style: { display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#475569' } }, 
+        label, required && h('span', { style: { color: '#ef4444', marginLeft: '4px' } }, '*')
     ),
     children
 );
@@ -262,11 +267,11 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
 
         // Modal
         h(Modal, { isOpen: isModalOpen, onClose: () => setIsModalOpen(false), title: modalMode === 'create' ? 'Nieuwe Locatie' : 'Locatie Bewerken' },
-            h('form', { onSubmit: handleSubmit, style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } },
+            h('form', { onSubmit: handleSubmit },
                 
-                // Left Column
-                h('div', null,
-                    h(FormField, { label: 'Locatie Naam (Title)', required: true },
+                // Section 1: Algemene Informatie
+                h(FormSection, { title: 'Algemene Informatie', columns: 2 },
+                    h(FormField, { label: 'Locatie Naam (Title)', required: true, colSpan: 2 },
                         h('input', { 
                             type: 'text', required: true,
                             value: formData.Title || '', 
@@ -282,6 +287,18 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                             style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
                         })
                     ),
+                    h(FormField, { label: 'Feitcodegroep', required: true },
+                        h(SelectField, {
+                            value: formData.Feitcodegroep,
+                            onChange: v => setFormData({...formData, Feitcodegroep: v}),
+                            options: ['Verkeersborden', 'Parkeren', 'Rijgedrag'],
+                            required: true
+                        })
+                    )
+                ),
+
+                // Section 2: Status & Planning
+                h(FormSection, { title: 'Status & Planning', columns: 2 },
                     h(FormField, { label: 'Status B&S', required: true },
                         h(SelectField, {
                             value: formData.Status,
@@ -290,15 +307,17 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                             required: true
                         })
                     ),
-                    h(FormField, { label: 'Feitcodegroep', required: true },
-                        h(SelectField, {
-                            value: formData.Feitcodegroep,
-                            onChange: v => setFormData({...formData, Feitcodegroep: v}),
-                            options: ['Verkeersborden', 'Parkeren', 'Rijgedrag'],
-                            required: true
+                    h(FormField, { label: 'Laatste Schouw' },
+                        h(DateField, {
+                            value: formData.LaatsteSchouw,
+                            onChange: v => setFormData({...formData, LaatsteSchouw: v})
                         })
-                    ),
-                    h(FormField, { label: 'Waarschuwing', required: true },
+                    )
+                ),
+
+                // Section 3: Waarschuwingen
+                h(FormSection, { title: 'Waarschuwingen', columns: 3 },
+                    h(FormField, { label: 'Waarschuwing Actief?', required: true },
                         h(SelectField, {
                             value: formData.Waarschuwing,
                             onChange: v => setFormData({...formData, Waarschuwing: v}),
@@ -306,13 +325,31 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                             required: true
                         })
                     ),
-                    h(FormField, { label: 'Contactpersoon' },
+                    formData.Waarschuwing === 'Ja' && h(React.Fragment, null,
+                        h(FormField, { label: 'Start Datum' },
+                            h(DateField, {
+                                value: formData.StartWaarschuwing,
+                                onChange: v => setFormData({...formData, StartWaarschuwing: v})
+                            })
+                        ),
+                        h(FormField, { label: 'Eind Datum' },
+                            h(DateField, {
+                                value: formData.EindeWaarschuwing,
+                                onChange: v => setFormData({...formData, EindeWaarschuwing: v})
+                            })
+                        )
+                    )
+                ),
+
+                // Section 4: Contact
+                h(FormSection, { title: 'Contactpersoon', columns: 2 },
+                    h(FormField, { label: 'Zoek Gebruiker' },
                         h(PeoplePicker, {
                             value: formData.Contactpersoon,
                             onChange: user => setFormData({...formData, Contactpersoon: user})
                         })
                     ),
-                    h(FormField, { label: 'Email Contactpersoon' },
+                    h(FormField, { label: 'Email Adres' },
                         h('input', { 
                             type: 'email',
                             value: formData.EmailContact || '', 
@@ -322,27 +359,8 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                     )
                 ),
 
-                // Right Column
-                h('div', null,
-                    h(FormField, { label: 'Start Waarschuwingsperiode' },
-                        h(DateField, {
-                            value: formData.StartWaarschuwing,
-                            onChange: v => setFormData({...formData, StartWaarschuwing: v})
-                        })
-                    ),
-                    h(FormField, { label: 'Einde Waarschuwingsperiode' },
-                        h(DateField, {
-                            value: formData.EindeWaarschuwing,
-                            onChange: v => setFormData({...formData, EindeWaarschuwing: v})
-                        })
-                    ),
-                    h(FormField, { label: 'Laatste Schouw' },
-                        h(DateField, {
-                            value: formData.LaatsteSchouw,
-                            onChange: v => setFormData({...formData, LaatsteSchouw: v})
-                        })
-                    ),
-                    h('hr', { style: { margin: '20px 0', border: '0', borderTop: '1px solid #eee' } }),
+                // Section 5: Documenten
+                h(FormSection, { title: 'Documenten & Links', columns: 1 },
                     h(FormField, { label: 'Link Algemeen PV' },
                         h(UrlField, {
                             value: formData.LinkAlgemeenPV,
@@ -364,9 +382,9 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                 ),
 
                 // Footer Buttons
-                h('div', { style: { gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' } },
-                    h('button', { type: 'button', onClick: () => setIsModalOpen(false), style: { padding: '10px 20px', background: '#f1f5f9', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', color: '#64748b' } }, 'Annuleren'),
-                    h('button', { type: 'submit', disabled: loading, style: { padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' } }, loading ? 'Bezig...' : 'Opslaan')
+                h('div', { style: { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' } },
+                    h('button', { type: 'button', onClick: () => setIsModalOpen(false), style: { padding: '10px 20px', background: 'white', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', color: '#64748b' } }, 'Annuleren'),
+                    h('button', { type: 'submit', disabled: loading, style: { padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)' } }, loading ? 'Bezig...' : 'Opslaan')
                 )
             )
         )
