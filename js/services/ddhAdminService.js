@@ -1,4 +1,4 @@
-import DDH_CONFIG from '../config/index.js';
+import { DDH_CONFIG } from '../config/index.js';
 
 const getRequestDigest = async () => {
     const response = await fetch(DDH_CONFIG.helpers.maakApiUrl("/contextinfo"), {

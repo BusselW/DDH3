@@ -172,6 +172,7 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
     const loadProblems = async () => {
         try {
             const data = await DDHAdminService.getProblems();
+            console.log("Loaded problems:", data);
             setProblems(data);
         } catch (e) {
             console.error("Error loading problems", e);
@@ -344,14 +345,21 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
             
             // --- Problemen Section ---
             h('div', { className: 'admin-section' },
-                h('div', { className: 'admin-section-title' }, 'Problemen'),
+                h('div', { className: 'admin-section-title', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, 
+                    `Problemen (${problems.length})`,
+                    h('button', { 
+                        onClick: loadProblems, 
+                        style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#3b82f6', padding: '0 4px' },
+                        title: 'Lijst verversen'
+                    }, '↻')
+                ),
                 h('select', {
                     value: selectedProblemId,
                     onChange: e => setSelectedProblemId(e.target.value),
                     style: { width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #cbd5e1', borderRadius: '6px' }
                 },
-                    h('option', { value: '' }, '-- Selecteer een probleem --'),
-                    problems.map(p => h('option', { key: p.Id, value: p.Id }, p.Title))
+                    h('option', { value: '' }, problems.length === 0 ? 'Geen problemen gevonden' : '-- Selecteer een probleem --'),
+                    problems.map(p => h('option', { key: p.Id, value: p.Id }, `${p.Title} - ${p.Gemeente}`))
                 ),
                 h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading }, 
                     h(Icons.Plus), 'Toevoegen'
