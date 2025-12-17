@@ -1070,7 +1070,7 @@
 
                                         return h('div', { key: problem.Id, className: 'problem-card active' },
                                             h('div', { className: 'problem-header' },
-                                                h('div', { className: 'problem-id' }, h(Icons.Alert), `Probleem #${problem.Id}`),
+                                                h('div', { className: 'problem-id' }, h(Icons.Alert), h('span', { style: { fontWeight: 'bold', fontSize: '14px', color: '#1e293b' } }, problem.Title || `Probleem #${problem.Id}`)),
                                                 h('div', { className: 'problem-age' }, `${daysSince} dagen geleden`)
                                             ),
                                             
@@ -1133,7 +1133,7 @@
 
                                     return h('div', { key: problem.Id, className: 'problem-card resolved' },
                                         h('div', { className: 'problem-header' },
-                                            h('div', { className: 'problem-id' }, h(Icons.CheckCircle), `Probleem #${problem.Id} (Opgelost)`),
+                                            h('div', { className: 'problem-id' }, h(Icons.CheckCircle), h('span', { style: { fontWeight: 'bold', fontSize: '14px', color: '#1e293b' } }, `${problem.Title || `Probleem #${problem.Id}`} (Opgelost)`)),
                                             h('div', { className: 'problem-age' }, `${daysSince} dagen geleden`)
                                         ),
                                         
@@ -1328,7 +1328,7 @@
                                                     h('div', { className: 'tree-type-icon' }, 
                                                         isActive ? h(Icons.Alert) : h(Icons.CheckCircle)
                                                     ),
-                                                    h('div', { className: 'tree-text' }, `#${problem.Id}`)
+                                                    h('div', { className: 'tree-text' }, problem.Title || `#${problem.Id}`)
                                                 );
                                             })
                                         );
