@@ -1,3 +1,4 @@
+<%@ Page Language="C#" %>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -333,6 +334,7 @@
         .problem-status.aangemeld { background: #fee2e2; color: #dc2626; }
         .problem-status.behandeling { background: #dbeafe; color: #2563eb; }
         .problem-status.uitgezet { background: #fef3c7; color: #d97706; }
+        .problem-status.uitgezet-bij-oi { background: #fef3c7; color: #d97706; }
         .problem-status.opgelost { background: #dcfce7; color: #16a34a; }
         
         .empty-state {
@@ -455,6 +457,21 @@
 
             const selectItem = (type, data) => {
                 setSelectedItem({ type, data });
+            };
+
+            const copyToClipboard = (e, url) => {
+                e.preventDefault();
+                // Convert https://server/sites/... to \\server\sites\...
+                let path = url.replace(/^https?:\/\//, '');
+                path = path.replace(/\//g, '\\');
+                path = '\\\\' + path;
+                
+                navigator.clipboard.writeText(path).then(() => {
+                    alert('Pad gekopieerd naar klembord:\n' + path + '\n\nPlak dit in de adresbalk van de Verkenner.');
+                }).catch(err => {
+                    console.error('Fout bij kopiëren:', err);
+                    prompt('Kopieer dit pad handmatig:', path);
+                });
             };
 
             const renderContent = () => {
@@ -615,6 +632,14 @@
                                     h('h4', { style: { marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: '#1e293b' } }, 'Algemene Informatie'),
                                     h('div', { className: 'location-details-grid', style: { display: 'grid', gap: '12px' } },
                                         h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'ID:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Id || '-')
+                                        ),
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Gemeente:'),
+                                            h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Gemeente || '-')
+                                        ),
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
                                             h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Status B&S:'),
                                             h('span', { style: { fontWeight: '600', color: '#334155' } }, itemData.Status_x0020_B_x0026_S || '-')
                                         ),
@@ -643,6 +668,14 @@
                                         itemData.E_x002d_mailadres_x0020_contactp && h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
                                             h('span', { style: { color: '#64748b', fontSize: '14px' } }, 'Email Contact:'),
                                             h('a', { href: `mailto:${itemData.E_x002d_mailadres_x0020_contactp}`, style: { fontWeight: '600', color: '#3b82f6', textDecoration: 'none' } }, itemData.E_x002d_mailadres_x0020_contactp)
+                                        ),
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #e2e8f0', paddingTop: '8px', marginTop: '4px' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '12px' } }, 'Aangemaakt:'),
+                                            h('span', { style: { color: '#64748b', fontSize: '12px' } }, itemData.Created ? new Date(itemData.Created).toLocaleDateString('nl-NL') : '-')
+                                        ),
+                                        h('div', { className: 'detail-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                                            h('span', { style: { color: '#64748b', fontSize: '12px' } }, 'Gewijzigd:'),
+                                            h('span', { style: { color: '#64748b', fontSize: '12px' } }, itemData.Modified ? new Date(itemData.Modified).toLocaleDateString('nl-NL') : '-')
                                         )
                                     )
                                 ),
@@ -651,6 +684,28 @@
                                 h('div', { className: 'detail-card', style: { height: '100%', padding: '20px' } },
                                     h('h4', { style: { marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0, color: '#1e293b' } }, 'Documenten & Links'),
                                     h('div', { className: 'links-grid', style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
+                                        // SharePoint Item Link
+                                        h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
+                                            h('a', { 
+                                                href: `${DDH_CONFIG.sharepoint.siteUrl}/Lists/Digitale%20handhaving/DispForm.aspx?ID=${itemData.Id}`, 
+                                                target: '_blank',
+                                                className: 'doc-link-primary',
+                                                style: { 
+                                                    flex: '1', display: 'flex', alignItems: 'center', gap: '12px', 
+                                                    padding: '12px', background: '#f8fafc', textDecoration: 'none', color: '#334155',
+                                                    transition: 'all 0.2s'
+                                                },
+                                                onMouseOver: (e) => { e.currentTarget.style.background = '#eff6ff'; },
+                                                onMouseOut: (e) => { e.currentTarget.style.background = '#f8fafc'; }
+                                            }, 
+                                                h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
+                                                h('div', null,
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, 'Bekijk Item in SharePoint'),
+                                                    h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open eigenschappen formulier')
+                                                )
+                                            )
+                                        ),
+
                                         itemData.Link_x0020_Algemeen_x0020_PV ? h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
                                             // Primary Button (SharePoint)
                                             h('a', { 
@@ -674,8 +729,9 @@
                                             // Secondary Button (UNC/Explorer)
                                             h('a', { 
                                                 className: 'doc-link-secondary',
-                                                title: 'Open in Verkenner',
-                                                href: itemData.Link_x0020_Algemeen_x0020_PV.Url.replace(/^https?:\/\//, 'file://'),
+                                                title: 'Kopieer pad naar klembord (voor Verkenner)',
+                                                href: '#',
+                                                onClick: (e) => copyToClipboard(e, itemData.Link_x0020_Algemeen_x0020_PV.Url),
                                                 style: { 
                                                     width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s',
@@ -709,8 +765,9 @@
                                             // Secondary Button (UNC/Explorer)
                                             h('a', { 
                                                 className: 'doc-link-secondary',
-                                                title: 'Open in Verkenner',
-                                                href: itemData.Link_x0020_Schouwrapporten.Url.replace(/^https?:\/\//, 'file://'),
+                                                title: 'Kopieer pad naar klembord (voor Verkenner)',
+                                                href: '#',
+                                                onClick: (e) => copyToClipboard(e, itemData.Link_x0020_Schouwrapporten.Url),
                                                 style: { 
                                                     width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s',
@@ -744,8 +801,9 @@
                                             // Secondary Button (UNC/Explorer)
                                             h('a', { 
                                                 className: 'doc-link-secondary',
-                                                title: 'Open in Verkenner',
-                                                href: itemData.Instemmingsbesluit.Url.replace(/^https?:\/\//, 'file://'),
+                                                title: 'Kopieer pad naar klembord (voor Verkenner)',
+                                                href: '#',
+                                                onClick: (e) => copyToClipboard(e, itemData.Instemmingsbesluit.Url),
                                                 style: { 
                                                     width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     background: '#f1f5f9', cursor: 'pointer', transition: 'all 0.2s',
@@ -786,7 +844,11 @@
                                             h('div', { className: 'problem-description' }, problem.Probleembeschrijving),
                                             
                                             // Action & Explanation Section
-                                            (problem.Actie_x0020_Beoordelaars || problem.Uitleg_x0020_actie_x0020_beoorde) && h('div', { style: { background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #e2e8f0' } },
+                                            (problem.Actie_x0020_Beoordelaars || problem.Uitleg_x0020_actie_x0020_beoorde) && h('div', { 
+                                                style: problem.Uitleg_x0020_actie_x0020_beoorde ? 
+                                                    { background: '#fff7ed', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #fdba74', borderLeft: '4px solid #f97316' } :
+                                                    { background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #e2e8f0' }
+                                            },
                                                 problem.Actie_x0020_Beoordelaars && h('div', { style: { marginBottom: '4px' } },
                                                     h('span', { style: { fontWeight: '600', fontSize: '13px', color: '#475569' } }, 'Actie beoordelaar: '),
                                                     h('span', { style: { color: '#1e293b' } }, problem.Actie_x0020_Beoordelaars)
