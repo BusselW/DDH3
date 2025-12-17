@@ -110,12 +110,18 @@
 
             const getStatus = (problem) => {
                 const pKey = RelatieHelpers.normaliseString(problem.ProbleemID);
+                if (!pKey) return { type: 'error', label: 'Geen ID', match: null };
+
                 // Check if it starts with any location key
                 const match = locations.find(loc => {
                     const lKey = RelatieHelpers.normaliseString(loc.gemeenteID);
-                    return lKey && pKey && pKey.startsWith(lKey);
+                    return lKey && pKey.startsWith(lKey);
                 });
-                return match ? { type: 'ok', label: 'Gekoppeld' } : { type: 'error', label: 'Niet gekoppeld' };
+                
+                if (match) {
+                    return { type: 'ok', label: 'Gekoppeld', match: match.gemeenteID };
+                }
+                return { type: 'error', label: 'Niet gekoppeld', match: null };
             };
 
             const filteredProblems = problems.filter(p => {
@@ -161,7 +167,7 @@
                             h('th', null, 'Gemeente'),
                             h('th', null, 'Beschrijving'),
                             h('th', null, 'Huidige Sleutel (ProbleemID)'),
-                            h('th', null, 'Status'),
+                            h('th', null, 'Status / Match'),
                             h('th', null, 'Nieuwe Koppeling (Selecteer DDH Locatie)'),
                             h('th', null, 'Actie')
                         )
@@ -208,7 +214,10 @@
                     )
                 ),
                 h('td', null,
-                    h('span', { className: `status-badge status-${status.type}` }, status.label)
+                    h('div', null, h('span', { className: `status-badge status-${status.type}` }, status.label)),
+                    status.match && h('div', { style: { fontSize: '11px', color: '#166534', marginTop: '4px' } }, 
+                        `Match: ${status.match}`
+                    )
                 ),
                 h('td', null,
                     h('select', { value: selectedLoc, onChange: handleChange },

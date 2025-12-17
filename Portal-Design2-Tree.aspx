@@ -47,10 +47,18 @@
             margin-bottom: 20px;
             padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;
         }
+        .sidebar-title-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+        }
         .sidebar-title {
             font-size: 18px;
-            font-weight: 700; margin: 0 0 8px 0; color: #1e293b;
+            font-weight: 700; margin: 0; color: #1e293b;
         }
+        .refresh-btn {
+            background: none; border: none; cursor: pointer; color: #64748b; padding: 4px;
+            border-radius: 4px; transition: all 0.2s;
+        }
+        .refresh-btn:hover { background: #f1f5f9; color: #3b82f6; }
         .search-input {
             width: 100%;
             padding: 10px 12px; border: 2px solid #e2e8f0;
@@ -832,7 +840,14 @@
                     // Sidebar with Tree
                     h('div', { className: 'sidebar' },
                         h('div', { className: 'sidebar-header' },
-                            h('h3', { className: 'sidebar-title' }, 'Navigatie'),
+                            h('div', { className: 'sidebar-title-row' },
+                                h('h3', { className: 'sidebar-title' }, 'Navigatie'),
+                                h('button', { 
+                                    className: 'refresh-btn',
+                                    title: 'Ververs data',
+                                    onClick: () => loadData(true) // Force refresh
+                                }, h(Icons.Refresh || (() => h('span', null, '↻'))))
+                            ),
                             h('div', { style: { position: 'relative' } },
                                 h('input', {
                                     type: 'text',
