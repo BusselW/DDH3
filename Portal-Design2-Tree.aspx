@@ -1,4 +1,4 @@
-<%@ Page Language="C#" %>
+<%@ Page Language="C#" ResponseEncoding="utf-8" %>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -454,6 +454,7 @@
         // Import configuration and navigation
         const { DDH_CONFIG } = await import('./js/config/index.js');
         const { TEMP_PLACEHOLDER_DATA } = await import('./js/components/pageNavigation.js');
+        const { AdminMenu } = await import('./js/components/AdminMenu.js');
         // FooterNavigation removed as per request
 
         // --- Inline SVG Icons Component Set ---
@@ -475,41 +476,7 @@
             Trash: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('polyline', {points: "3 6 5 6 21 6"}), h('path', {d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"}))
         };
 
-        const AdminMenu = ({ selectedItem, isAdmin }) => {
-            if (!isAdmin) return null;
 
-            const isDDHSelected = selectedItem?.type === 'locatie';
-            
-            return h('div', { className: 'admin-menu' },
-                h('div', { className: 'admin-header' }, h(Icons.Settings), 'Beheer Menu'),
-                
-                h('div', { className: 'admin-section' },
-                    h('div', { className: 'admin-section-title' }, 'DDH Locaties'),
-                    h('button', { className: 'admin-btn', onClick: () => alert('Nieuwe locatie toevoegen') }, 
-                        h(Icons.Plus), 'Toevoegen'
-                    ),
-                    h('button', { 
-                        className: 'admin-btn', 
-                        disabled: !isDDHSelected,
-                        onClick: () => isDDHSelected && alert('Locatie bewerken: ' + selectedItem.data.Title)
-                    }, 
-                        h(Icons.Edit), 'Bewerken'
-                    ),
-                    h('button', { 
-                        className: `admin-btn ${isDDHSelected ? 'danger' : ''}`,
-                        disabled: !isDDHSelected,
-                        onClick: () => isDDHSelected && confirm('Weet u zeker dat u ' + selectedItem.data.Title + ' wilt verwijderen?') && alert('Verwijderd')
-                    }, 
-                        h(Icons.Trash), 'Verwijderen'
-                    )
-                ),
-                
-                h('div', { className: 'admin-section' },
-                    h('div', { className: 'admin-section-title' }, 'Problemen'),
-                    h('div', { style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' } }, 'Selecteer een probleem...')
-                )
-            );
-        };
 
         const TreePortal = () => {
             const [data, setData] = useState([]);
@@ -608,19 +575,21 @@
                 checkAdmin();
             }, []);
 
+            const loadData = async (showLoading = true) => {
+                if (showLoading) setLoading(true);
+                try {
+                    const result = await DDH_CONFIG.queries.haalAllesMetRelaties();
+                    setData(result);
+                } catch (error) {
+                    console.error('Data loading error, using placeholder data:', error);
+                    setData(TEMP_PLACEHOLDER_DATA);
+                } finally {
+                    if (showLoading) setLoading(false);
+                }
+            };
+
             useEffect(() => {
-                const fetchData = async () => {
-                    try {
-                        const result = await DDH_CONFIG.queries.haalAllesMetRelaties();
-                        setData(result);
-                    } catch (error) {
-                        console.error('Data loading error, using placeholder data:', error);
-                        setData(TEMP_PLACEHOLDER_DATA);
-                    } finally {
-                        setLoading(false);
-                    }
-                };
-                fetchData();
+                loadData();
             }, []);
 
             // Group data by gemeente
@@ -1305,7 +1274,7 @@
                 ),
                 
                 // Admin Menu
-                h(AdminMenu, { selectedItem, isAdmin })
+                h(AdminMenu, { selectedItem, isAdmin, onRefresh: () => loadData(false) })
             );
         };
 
