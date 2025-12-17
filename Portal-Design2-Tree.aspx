@@ -80,14 +80,12 @@
             border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* Recent Changes Footer */
-        .recent-changes-footer {
-            margin-top: 40px;
-            padding-top: 24px;
-            border-top: 1px solid #e2e8f0;
+        /* Recent Changes Bar */
+        .recent-changes-bar {
+            margin-bottom: 32px;
         }
-        .recent-footer-title {
-            font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1e293b;
+        .recent-bar-title {
+            font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1e293b;
             display: flex; align-items: center; gap: 8px;
         }
         .recent-grid {
@@ -1284,6 +1282,42 @@
                     )
                 ),
 
+                // Recent Changes Bar
+                h('div', { className: 'recent-changes-bar' },
+                    h('div', { className: 'recent-bar-title' }, '🕒 Recent Veranderingen'),
+                    h('div', { className: 'recent-grid' },
+                        recentChanges.map(item => 
+                            h('div', { 
+                                className: 'recent-card',
+                                onClick: () => {
+                                    if (item.type === 'Locatie') {
+                                        selectItem('locatie', item.data);
+                                        const newExpanded = new Set(expandedNodes);
+                                        newExpanded.add(item.gemeente);
+                                        setExpandedNodes(newExpanded);
+                                    } else {
+                                        selectItem('locatie', item.parentLoc);
+                                        const newExpanded = new Set(expandedNodes);
+                                        newExpanded.add(item.parentLoc.Gemeente);
+                                        newExpanded.add(item.parentLoc.Id);
+                                        setExpandedNodes(newExpanded);
+                                    }
+                                }
+                            },
+                                h('div', { className: 'recent-card-header' },
+                                    h('span', { 
+                                        className: `recent-tag ${item.type === 'Locatie' ? 'loc' : 'prb'}`
+                                    }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
+                                    h('span', { className: 'recent-card-date' }, 
+                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+                                    )
+                                ),
+                                h('div', { className: 'recent-card-title' }, item.title)
+                            )
+                        )
+                    )
+                ),
+
                 // Main Layout
                 h('div', { className: 'main-layout' },
                     // Sidebar with Tree
@@ -1443,42 +1477,6 @@
                     
                     // Content Area
                     h('div', { className: 'content-area' }, renderContent())
-                ),
-
-                // Recent Changes Footer
-                h('div', { className: 'recent-changes-footer' },
-                    h('div', { className: 'recent-footer-title' }, '🕒 Recent Veranderingen'),
-                    h('div', { className: 'recent-grid' },
-                        recentChanges.map(item => 
-                            h('div', { 
-                                className: 'recent-card',
-                                onClick: () => {
-                                    if (item.type === 'Locatie') {
-                                        selectItem('locatie', item.data);
-                                        const newExpanded = new Set(expandedNodes);
-                                        newExpanded.add(item.gemeente);
-                                        setExpandedNodes(newExpanded);
-                                    } else {
-                                        selectItem('locatie', item.parentLoc);
-                                        const newExpanded = new Set(expandedNodes);
-                                        newExpanded.add(item.parentLoc.Gemeente);
-                                        newExpanded.add(item.parentLoc.Id);
-                                        setExpandedNodes(newExpanded);
-                                    }
-                                }
-                            },
-                                h('div', { className: 'recent-card-header' },
-                                    h('span', { 
-                                        className: `recent-tag ${item.type === 'Locatie' ? 'loc' : 'prb'}`
-                                    }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
-                                    h('span', { className: 'recent-card-date' }, 
-                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
-                                    )
-                                ),
-                                h('div', { className: 'recent-card-title' }, item.title)
-                            )
-                        )
-                    )
                 )
             );
         };

@@ -365,6 +365,17 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                 }, 
                     h(Icons.Trash), 'Verwijderen'
                 )
+            ),
+
+            // --- Relatiebeheer Section ---
+            h('div', { className: 'admin-section' },
+                h('div', { className: 'admin-section-title' }, 'Relatiebeheer'),
+                h('button', { 
+                    className: 'admin-btn', 
+                    onClick: () => window.location.href = 'relatiebeheer.aspx'
+                }, 
+                    h(Icons.User), 'Open Relatiebeheer'
+                )
             )
         ),
 
