@@ -67,11 +67,11 @@
         /* Sidebar and Main Layout */
         .main-layout {
             display: grid;
-            grid-template-columns: 320px 1fr; gap: 24px;
+            grid-template-columns: 320px 1fr 320px; gap: 24px;
         }
         
         /* Sidebar with Tree */
-        .sidebar {
+        .sidebar, .right-sidebar {
             background: white;
             border-radius: 16px; padding: 24px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08); height: fit-content;
@@ -102,8 +102,33 @@
             outline: none;
             border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
+
+        /* Recent Changes in Sidebar */
+        .recent-changes-board {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .recent-title {
+            font-size: 14px; font-weight: 700; margin-bottom: 16px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #1e293b;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .recent-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+            font-size: 13px;
+            border: 1px solid transparent;
+            margin-bottom: 4px;
+        }
+        .recent-item:hover { 
+            background: #f1f5f9; 
+            border-color: #e2e8f0;
+        }
+        .recent-date { font-size: 11px; color: #64748b; margin-left: auto; white-space: nowrap; }
         
-        /* Tree Structure */
+        .portal-title {
         .tree-container {
             max-height: 70vh;
             overflow-y: auto;
@@ -1260,54 +1285,6 @@
                     h('div', { className: 'header-content' },
                         h('h1', { className: 'portal-title' }, 'Digitale handhaving en probleemlocaties'),
                         h('p', { className: 'portal-subtitle' }, 'Hi\u00EBrarchische weergave van gemeentes, locaties en problemen')
-                    ),
-                    h('div', { className: 'recent-changes-board' },
-                        h('div', { className: 'recent-title' }, '🕒 Recent Veranderingen'),
-                        recentChanges.map(item => 
-                            h('div', { 
-                                className: 'recent-item',
-                                onClick: () => {
-                                    if (item.type === 'Locatie') {
-                                        selectItem('locatie', item.data);
-                                        const newExpanded = new Set(expandedNodes);
-                                        newExpanded.add(item.gemeente);
-                                        setExpandedNodes(newExpanded);
-                                    } else {
-                                        selectItem('locatie', item.parentLoc);
-                                        const newExpanded = new Set(expandedNodes);
-                                        newExpanded.add(item.parentLoc.Gemeente);
-                                        newExpanded.add(item.parentLoc.Id);
-                                        setExpandedNodes(newExpanded);
-                                    }
-                                }
-                            },
-                                h('span', { 
-                                    style: { 
-                                        fontSize: '10px', 
-                                        padding: '2px 6px', 
-                                        borderRadius: '4px',
-                                        background: item.type === 'Locatie' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                                        color: item.type === 'Locatie' ? '#60a5fa' : '#f87171',
-                                        fontWeight: '600',
-                                        marginRight: '4px'
-                                    } 
-                                }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
-                                
-                                h('span', { 
-                                    style: { 
-                                        whiteSpace: 'nowrap', 
-                                        overflow: 'hidden', 
-                                        textOverflow: 'ellipsis',
-                                        maxWidth: '140px',
-                                        color: '#e2e8f0'
-                                    } 
-                                }, item.title),
-
-                                h('span', { className: 'recent-date' }, 
-                                    item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
-                                )
-                            )
-                        )
                     )
                 ),
 
@@ -1459,19 +1436,72 @@
                     ),
                     
                     // Content Area
-                    h('div', { className: 'content-area' }, renderContent())
-                ),
-                
-                // Admin Menu
-                h(AdminMenu, { 
-                    selectedItem, 
-                    selectedProblem: adminSelectedProblem,
-                    isAdmin, 
-                    onRefresh: () => {
-                        loadData(false);
-                        setAdminSelectedProblem(null);
-                    }
-                })
+                    h('div', { className: 'content-area' }, renderContent()),
+
+                    // Right Sidebar
+                    h('div', { className: 'right-sidebar' },
+                        // Recent Changes
+                        h('div', { className: 'recent-changes-board' },
+                            h('div', { className: 'recent-title' }, '🕒 Recent Veranderingen'),
+                            recentChanges.map(item => 
+                                h('div', { 
+                                    className: 'recent-item',
+                                    onClick: () => {
+                                        if (item.type === 'Locatie') {
+                                            selectItem('locatie', item.data);
+                                            const newExpanded = new Set(expandedNodes);
+                                            newExpanded.add(item.gemeente);
+                                            setExpandedNodes(newExpanded);
+                                        } else {
+                                            selectItem('locatie', item.parentLoc);
+                                            const newExpanded = new Set(expandedNodes);
+                                            newExpanded.add(item.parentLoc.Gemeente);
+                                            newExpanded.add(item.parentLoc.Id);
+                                            setExpandedNodes(newExpanded);
+                                        }
+                                    }
+                                },
+                                    h('span', { 
+                                        style: { 
+                                            fontSize: '10px', 
+                                            padding: '2px 6px', 
+                                            borderRadius: '4px',
+                                            background: item.type === 'Locatie' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                            color: item.type === 'Locatie' ? '#2563eb' : '#dc2626',
+                                            fontWeight: '600',
+                                            marginRight: '4px'
+                                        } 
+                                    }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
+                                    
+                                    h('span', { 
+                                        style: { 
+                                            whiteSpace: 'nowrap', 
+                                            overflow: 'hidden', 
+                                            textOverflow: 'ellipsis',
+                                            maxWidth: '140px',
+                                            color: '#334155'
+                                        } 
+                                    }, item.title),
+
+                                    h('span', { className: 'recent-date' }, 
+                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+                                    )
+                                )
+                            )
+                        ),
+
+                        // Admin Menu
+                        h(AdminMenu, { 
+                            selectedItem, 
+                            selectedProblem: adminSelectedProblem,
+                            isAdmin, 
+                            onRefresh: () => {
+                                loadData(false);
+                                setAdminSelectedProblem(null);
+                            }
+                        })
+                    )
+                )
             );
         };
 
