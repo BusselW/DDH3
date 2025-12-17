@@ -1,4 +1,4 @@
-<%@ Page Language="C#" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" %>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
