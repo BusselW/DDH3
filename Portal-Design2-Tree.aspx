@@ -766,12 +766,46 @@
                                 h('div', { className: 'problems-grid' },
                                     activeProbs.map(problem => {
                                         const daysSince = Math.floor((new Date() - new Date(problem.Aanmaakdatum)) / (1000 * 60 * 60 * 24));
+                                        
+                                        // Helper to format date
+                                        const formatDate = (d) => d ? new Date(d).toLocaleDateString('nl-NL') : '-';
+                                        
+                                        // Helper to format user(s)
+                                        const formatUser = (u) => {
+                                            if (!u) return '-';
+                                            if (u.results) return u.results.map(r => r.Title).join(', '); // Multi-user
+                                            return u.Title || '-'; // Single user
+                                        };
+
                                         return h('div', { key: problem.Id, className: 'problem-card active' },
                                             h('div', { className: 'problem-header' },
                                                 h('div', { className: 'problem-id' }, h(Icons.Alert), `Probleem #${problem.Id}`),
                                                 h('div', { className: 'problem-age' }, `${daysSince} dagen geleden`)
                                             ),
+                                            
                                             h('div', { className: 'problem-description' }, problem.Probleembeschrijving),
+                                            
+                                            // Action & Explanation Section
+                                            (problem.Actie_x0020_Beoordelaars || problem.Uitleg_x0020_actie_x0020_beoorde) && h('div', { style: { background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #e2e8f0' } },
+                                                problem.Actie_x0020_Beoordelaars && h('div', { style: { marginBottom: '4px' } },
+                                                    h('span', { style: { fontWeight: '600', fontSize: '13px', color: '#475569' } }, 'Actie beoordelaar: '),
+                                                    h('span', { style: { color: '#1e293b' } }, problem.Actie_x0020_Beoordelaars)
+                                                ),
+                                                problem.Uitleg_x0020_actie_x0020_beoorde && h('div', null,
+                                                    h('span', { style: { fontWeight: '600', fontSize: '13px', color: '#475569', display: 'block', marginBottom: '2px' } }, 'Toelichting:'),
+                                                    h('span', { style: { color: '#334155', fontStyle: 'italic' } }, problem.Uitleg_x0020_actie_x0020_beoorde)
+                                                )
+                                            ),
+
+                                            // Metadata Grid (Subtle)
+                                            h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '12px', color: '#64748b', margin: '12px 0', paddingTop: '12px', borderTop: '1px dashed #e2e8f0' } },
+                                                h('div', null, h('strong', null, 'Melder: '), formatUser(problem.Melder)),
+                                                h('div', null, h('strong', null, 'Eigenaar: '), formatUser(problem.Eigenaar)),
+                                                h('div', { style: { gridColumn: 'span 2' } }, h('strong', null, 'Afhandelende beoordelaar: '), formatUser(problem.Beoordelaar)),
+                                                h('div', null, h('strong', null, 'Startdatum: '), formatDate(problem.Startdatum)),
+                                                h('div', null, h('strong', null, 'Einddatum: '), formatDate(problem.Einddatum))
+                                            ),
+
                                             h('div', { className: 'problem-footer' },
                                                 h('div', { className: 'problem-category' }, problem.Feitcodegroep),
                                                 h('div', {
@@ -791,12 +825,46 @@
                             h('div', { className: 'problems-grid' },
                                 resolvedProbs.map(problem => {
                                     const daysSince = Math.floor((new Date() - new Date(problem.Aanmaakdatum)) / (1000 * 60 * 60 * 24));
+                                    
+                                    // Helper to format date
+                                    const formatDate = (d) => d ? new Date(d).toLocaleDateString('nl-NL') : '-';
+                                    
+                                    // Helper to format user(s)
+                                    const formatUser = (u) => {
+                                        if (!u) return '-';
+                                        if (u.results) return u.results.map(r => r.Title).join(', '); // Multi-user
+                                        return u.Title || '-'; // Single user
+                                    };
+
                                     return h('div', { key: problem.Id, className: 'problem-card resolved' },
                                         h('div', { className: 'problem-header' },
                                             h('div', { className: 'problem-id' }, h(Icons.CheckCircle), `Probleem #${problem.Id} (Opgelost)`),
                                             h('div', { className: 'problem-age' }, `${daysSince} dagen geleden`)
                                         ),
+                                        
                                         h('div', { className: 'problem-description' }, problem.Probleembeschrijving),
+                                        
+                                        // Action & Explanation Section
+                                        (problem.Actie_x0020_Beoordelaars || problem.Uitleg_x0020_actie_x0020_beoorde) && h('div', { style: { background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '12px 0', border: '1px solid #e2e8f0' } },
+                                            problem.Actie_x0020_Beoordelaars && h('div', { style: { marginBottom: '4px' } },
+                                                h('span', { style: { fontWeight: '600', fontSize: '13px', color: '#475569' } }, 'Actie beoordelaar: '),
+                                                h('span', { style: { color: '#1e293b' } }, problem.Actie_x0020_Beoordelaars)
+                                            ),
+                                            problem.Uitleg_x0020_actie_x0020_beoorde && h('div', null,
+                                                h('span', { style: { fontWeight: '600', fontSize: '13px', color: '#475569', display: 'block', marginBottom: '2px' } }, 'Toelichting:'),
+                                                h('span', { style: { color: '#334155', fontStyle: 'italic' } }, problem.Uitleg_x0020_actie_x0020_beoorde)
+                                            )
+                                        ),
+
+                                        // Metadata Grid (Subtle)
+                                        h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '12px', color: '#64748b', margin: '12px 0', paddingTop: '12px', borderTop: '1px dashed #e2e8f0' } },
+                                            h('div', null, h('strong', null, 'Melder: '), formatUser(problem.Melder)),
+                                            h('div', null, h('strong', null, 'Eigenaar: '), formatUser(problem.Eigenaar)),
+                                            h('div', { style: { gridColumn: 'span 2' } }, h('strong', null, 'Afhandelende beoordelaar: '), formatUser(problem.Beoordelaar)),
+                                            h('div', null, h('strong', null, 'Startdatum: '), formatDate(problem.Startdatum)),
+                                            h('div', null, h('strong', null, 'Einddatum: '), formatDate(problem.Einddatum))
+                                        ),
+
                                         h('div', { className: 'problem-footer' },
                                             h('div', { className: 'problem-category' }, problem.Feitcodegroep),
                                             h('div', { className: 'problem-status opgelost' }, 'Opgelost')
