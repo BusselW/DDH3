@@ -1,4 +1,4 @@
-<%@ Page Language="C#" %>
+<%@ Page Language="C#" CodePage="65001" %>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
