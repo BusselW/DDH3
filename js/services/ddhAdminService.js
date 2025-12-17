@@ -52,6 +52,18 @@ export const DDHAdminService = {
         }));
     },
 
+    getProblems: async () => {
+        const endpoint = DDH_CONFIG.lijsten.problemenPleeglocaties.endpoints.alleItems() + 
+            "?$select=Id,Title,Gemeente,Feitcodegroep,Probleembeschrijving,Opgelost_x003f_,Actie_x0020_Beoordelaars,Aanmaakdatum,Beoordelaar/Title,Beoordelaar/Id,Beoordelaar/EMail" +
+            "&$expand=Beoordelaar";
+        
+        const response = await fetch(endpoint, {
+            headers: { "Accept": "application/json; odata=verbose" }
+        });
+        const data = await response.json();
+        return data.d.results;
+    },
+
     ensureUser: async (loginName) => {
         const digest = await getRequestDigest();
         const endpoint = DDH_CONFIG.helpers.maakApiUrl(`/web/ensureuser('${encodeURIComponent(loginName)}')`);
@@ -192,6 +204,91 @@ export const DDHAdminService = {
                 "IF-MATCH": "*"
             }
         });
+        if (!response.ok) throw new Error(await response.text());
+    },
+
+    // --- Problemen CRUD ---
+
+    addProblem: async (data) => {
+        const digest = await getRequestDigest();
+        const endpoint = DDH_CONFIG.lijsten.problemenPleeglocaties.endpoints.aanmaken();
+        
+        const payload = {
+            __metadata: { type: 'SP.Data.Problemen_x0020_pleeglocatiesListItem' },
+            Title: data.Title,
+            Gemeente: data.Gemeente,
+            Feitcodegroep: data.Feitcodegroep,
+            Probleembeschrijving: data.Probleembeschrijving,
+            Opgelost_x003f_: data.Status,
+            Actie_x0020_Beoordelaars: data.ActieBeoordelaars,
+            Aanmaakdatum: new Date().toISOString()
+        };
+
+        if (data.BeoordelaarId) {
+            // UserMulti field expects an array of IDs in 'results'
+            payload.BeoordelaarId = { results: [data.BeoordelaarId] };
+        }
+
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": digest
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+    },
+
+    updateProblem: async (id, data) => {
+        const digest = await getRequestDigest();
+        const endpoint = DDH_CONFIG.lijsten.problemenPleeglocaties.endpoints.updaten(id);
+        
+        const payload = {
+            __metadata: { type: 'SP.Data.Problemen_x0020_pleeglocatiesListItem' },
+            Title: data.Title,
+            Gemeente: data.Gemeente,
+            Feitcodegroep: data.Feitcodegroep,
+            Probleembeschrijving: data.Probleembeschrijving,
+            Opgelost_x003f_: data.Status,
+            Actie_x0020_Beoordelaars: data.ActieBeoordelaars
+        };
+
+        if (data.BeoordelaarId) {
+            payload.BeoordelaarId = { results: [data.BeoordelaarId] };
+        }
+
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose",
+                "X-RequestDigest": digest,
+                "X-HTTP-Method": "MERGE",
+                "IF-MATCH": "*"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+    },
+
+    deleteProblem: async (id) => {
+        const digest = await getRequestDigest();
+        const endpoint = DDH_CONFIG.lijsten.problemenPleeglocaties.endpoints.verwijderen(id);
+        
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "X-RequestDigest": digest,
+                "X-HTTP-Method": "DELETE",
+                "IF-MATCH": "*"
+            }
+        });
+
         if (!response.ok) throw new Error(await response.text());
     }
 };

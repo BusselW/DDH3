@@ -154,12 +154,31 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
     if (!isAdmin) return null;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState('create');
+    const [modalMode, setModalMode] = useState('create'); // create, edit, createProblem, editProblem
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
+    
+    // Problem Management State
+    const [problems, setProblems] = useState([]);
+    const [selectedProblemId, setSelectedProblemId] = useState('');
 
     const isDDHSelected = selectedItem?.type === 'locatie';
+    const selectedProblem = problems.find(p => p.Id === parseInt(selectedProblemId));
 
+    useEffect(() => {
+        loadProblems();
+    }, []);
+
+    const loadProblems = async () => {
+        try {
+            const data = await DDHAdminService.getProblems();
+            setProblems(data);
+        } catch (e) {
+            console.error("Error loading problems", e);
+        }
+    };
+
+    // --- Location Handlers ---
     const handleCreate = () => {
         setModalMode('create');
         setFormData({ 
@@ -182,8 +201,8 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
             EindeWaarschuwing: d.Einde_x0020_Waarschuwingsperiode,
             LaatsteSchouw: d.Laatste_x0020_schouw,
             EmailContact: d.E_x002d_mailadres_x0020_contactp,
-            Contactpersoon: d.Contactpersoon, // Object { Title, Id, ... }
-            LinkAlgemeenPV: d.Link_x0020_Algemeen_x0020_PV, // Object { Description, Url }
+            Contactpersoon: d.Contactpersoon,
+            LinkAlgemeenPV: d.Link_x0020_Algemeen_x0020_PV,
             LinkSchouwrapporten: d.Link_x0020_Schouwrapporten,
             Instemmingsbesluit: d.Instemmingsbesluit
         });
@@ -206,26 +225,79 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
         }
     };
 
+    // --- Problem Handlers ---
+    const handleCreateProblem = () => {
+        setModalMode('createProblem');
+        setFormData({
+            Title: '', Gemeente: '', Feitcodegroep: 'Verkeersborden', 
+            Status: 'Aangemeld', ActieBeoordelaars: 'Geen actie nodig'
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleEditProblem = () => {
+        if (!selectedProblem) return;
+        const p = selectedProblem;
+        setModalMode('editProblem');
+        setFormData({
+            Title: p.Title,
+            Gemeente: p.Gemeente,
+            Feitcodegroep: p.Feitcodegroep,
+            Probleembeschrijving: p.Probleembeschrijving,
+            Status: p.Opgelost_x003f_,
+            ActieBeoordelaars: p.Actie_x0020_Beoordelaars,
+            BeoordelaarId: p.Beoordelaar?.Id,
+            Beoordelaar: p.Beoordelaar // For display context if needed
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteProblem = async () => {
+        if (!selectedProblem) return;
+        if (confirm(`Weet u zeker dat u probleem "${selectedProblem.Title}" wilt verwijderen?`)) {
+            try {
+                setLoading(true);
+                await DDHAdminService.deleteProblem(selectedProblem.Id);
+                alert('Probleem verwijderd');
+                loadProblems();
+                setSelectedProblemId('');
+            } catch (e) {
+                alert('Fout: ' + e.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            setLoading(true);
-            
-            // Prepare data for service
-            const serviceData = {
-                ...formData,
-                ContactpersoonId: formData.Contactpersoon?.id || formData.Contactpersoon?.Id // Handle both picker result and existing SP data
-            };
-
-            if (modalMode === 'create') {
-                await DDHAdminService.addLocation(serviceData);
-                alert('Locatie aangemaakt');
+            if (modalMode.includes('Problem')) {
+                const serviceData = { ...formData };
+                if (modalMode === 'createProblem') {
+                    await DDHAdminService.addProblem(serviceData);
+                    alert('Probleem aangemaakt');
+                } else {
+                    await DDHAdminService.updateProblem(selectedProblem.Id, serviceData);
+                    alert('Probleem bijgewerkt');
+                }
+                loadProblems();
             } else {
-                await DDHAdminService.updateLocation(selectedItem.data.Id, serviceData);
-                alert('Locatie bijgewerkt');
+                const serviceData = {
+                    ...formData,
+                    ContactpersoonId: formData.Contactpersoon?.id || formData.Contactpersoon?.Id
+                };
+                if (modalMode === 'create') {
+                    await DDHAdminService.addLocation(serviceData);
+                    alert('Locatie aangemaakt');
+                } else {
+                    await DDHAdminService.updateLocation(selectedItem.data.Id, serviceData);
+                    alert('Locatie bijgewerkt');
+                }
+                onRefresh();
             }
             setIsModalOpen(false);
-            onRefresh();
         } catch (e) {
             alert('Fout bij opslaan: ' + e.message);
             console.error(e);
@@ -234,10 +306,21 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
         }
     };
 
+    const getModalTitle = () => {
+        switch(modalMode) {
+            case 'create': return 'Nieuwe Locatie';
+            case 'edit': return 'Locatie Bewerken';
+            case 'createProblem': return 'Nieuw Probleem';
+            case 'editProblem': return 'Probleem Bewerken';
+            default: return 'Formulier';
+        }
+    };
+
     return h('div', null,
         h('div', { className: 'admin-menu' },
             h('div', { className: 'admin-header' }, h(Icons.Settings), 'Beheer Menu'),
             
+            // --- Locaties Section ---
             h('div', { className: 'admin-section' },
                 h('div', { className: 'admin-section-title' }, 'DDH Locaties'),
                 h('button', { className: 'admin-btn', onClick: handleCreate, disabled: loading }, 
@@ -259,125 +342,208 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                 )
             ),
             
+            // --- Problemen Section ---
             h('div', { className: 'admin-section' },
                 h('div', { className: 'admin-section-title' }, 'Problemen'),
-                h('div', { style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' } }, 'Selecteer een probleem...')
+                h('select', {
+                    value: selectedProblemId,
+                    onChange: e => setSelectedProblemId(e.target.value),
+                    style: { width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #cbd5e1', borderRadius: '6px' }
+                },
+                    h('option', { value: '' }, '-- Selecteer een probleem --'),
+                    problems.map(p => h('option', { key: p.Id, value: p.Id }, p.Title))
+                ),
+                h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading }, 
+                    h(Icons.Plus), 'Toevoegen'
+                ),
+                h('button', { 
+                    className: 'admin-btn', 
+                    disabled: !selectedProblemId || loading,
+                    onClick: handleEditProblem
+                }, 
+                    h(Icons.Edit), 'Bewerken'
+                ),
+                h('button', { 
+                    className: 'admin-btn danger',
+                    disabled: !selectedProblemId || loading,
+                    onClick: handleDeleteProblem
+                }, 
+                    h(Icons.Trash), 'Verwijderen'
+                )
             )
         ),
 
         // Modal
-        h(Modal, { isOpen: isModalOpen, onClose: () => setIsModalOpen(false), title: modalMode === 'create' ? 'Nieuwe Locatie' : 'Locatie Bewerken' },
+        h(Modal, { isOpen: isModalOpen, onClose: () => setIsModalOpen(false), title: getModalTitle() },
             h('form', { onSubmit: handleSubmit },
                 
-                // Section 1: Algemene Informatie
-                h(FormSection, { title: 'Algemene Informatie', columns: 2 },
-                    h(FormField, { label: 'Locatie Naam (Title)', required: true, colSpan: 2 },
-                        h('input', { 
-                            type: 'text', required: true,
-                            value: formData.Title || '', 
-                            onChange: e => setFormData({...formData, Title: e.target.value}),
-                            style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
-                        })
-                    ),
-                    h(FormField, { label: 'Gemeente', required: true },
-                        h('input', { 
-                            type: 'text', required: true,
-                            value: formData.Gemeente || '', 
-                            onChange: e => setFormData({...formData, Gemeente: e.target.value}),
-                            style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
-                        })
-                    ),
-                    h(FormField, { label: 'Feitcodegroep', required: true },
-                        h(SelectField, {
-                            value: formData.Feitcodegroep,
-                            onChange: v => setFormData({...formData, Feitcodegroep: v}),
-                            options: ['Verkeersborden', 'Parkeren', 'Rijgedrag'],
-                            required: true
-                        })
-                    )
-                ),
-
-                // Section 2: Status & Planning
-                h(FormSection, { title: 'Status & Planning', columns: 2 },
-                    h(FormField, { label: 'Status B&S', required: true },
-                        h(SelectField, {
-                            value: formData.Status,
-                            onChange: v => setFormData({...formData, Status: v}),
-                            options: ['Aangevraagd', 'In behandeling', 'Instemming verleend'],
-                            required: true
-                        })
-                    ),
-                    h(FormField, { label: 'Laatste Schouw' },
-                        h(DateField, {
-                            value: formData.LaatsteSchouw,
-                            onChange: v => setFormData({...formData, LaatsteSchouw: v})
-                        })
-                    )
-                ),
-
-                // Section 3: Waarschuwingen
-                h(FormSection, { title: 'Waarschuwingen', columns: 3 },
-                    h(FormField, { label: 'Waarschuwing Actief?', required: true },
-                        h(SelectField, {
-                            value: formData.Waarschuwing,
-                            onChange: v => setFormData({...formData, Waarschuwing: v}),
-                            options: ['Ja', 'Nee'],
-                            required: true
-                        })
-                    ),
-                    formData.Waarschuwing === 'Ja' && h(React.Fragment, null,
-                        h(FormField, { label: 'Start Datum' },
-                            h(DateField, {
-                                value: formData.StartWaarschuwing,
-                                onChange: v => setFormData({...formData, StartWaarschuwing: v})
+                // --- Location Form ---
+                !modalMode.includes('Problem') && h(React.Fragment, null,
+                    h(FormSection, { title: 'Algemene Informatie', columns: 2 },
+                        h(FormField, { label: 'Locatie Naam (Title)', required: true, colSpan: 2 },
+                            h('input', { 
+                                type: 'text', required: true,
+                                value: formData.Title || '', 
+                                onChange: e => setFormData({...formData, Title: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
                             })
                         ),
-                        h(FormField, { label: 'Eind Datum' },
+                        h(FormField, { label: 'Gemeente', required: true },
+                            h('input', { 
+                                type: 'text', required: true,
+                                value: formData.Gemeente || '', 
+                                onChange: e => setFormData({...formData, Gemeente: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
+                            })
+                        ),
+                        h(FormField, { label: 'Feitcodegroep', required: true },
+                            h(SelectField, {
+                                value: formData.Feitcodegroep,
+                                onChange: v => setFormData({...formData, Feitcodegroep: v}),
+                                options: ['Verkeersborden', 'Parkeren', 'Rijgedrag'],
+                                required: true
+                            })
+                        )
+                    ),
+                    h(FormSection, { title: 'Status & Planning', columns: 2 },
+                        h(FormField, { label: 'Status B&S', required: true },
+                            h(SelectField, {
+                                value: formData.Status,
+                                onChange: v => setFormData({...formData, Status: v}),
+                                options: ['Aangevraagd', 'In behandeling', 'Instemming verleend'],
+                                required: true
+                            })
+                        ),
+                        h(FormField, { label: 'Laatste Schouw' },
                             h(DateField, {
-                                value: formData.EindeWaarschuwing,
-                                onChange: v => setFormData({...formData, EindeWaarschuwing: v})
+                                value: formData.LaatsteSchouw,
+                                onChange: v => setFormData({...formData, LaatsteSchouw: v})
+                            })
+                        )
+                    ),
+                    h(FormSection, { title: 'Waarschuwingen', columns: 3 },
+                        h(FormField, { label: 'Waarschuwing Actief?', required: true },
+                            h(SelectField, {
+                                value: formData.Waarschuwing,
+                                onChange: v => setFormData({...formData, Waarschuwing: v}),
+                                options: ['Ja', 'Nee'],
+                                required: true
+                            })
+                        ),
+                        formData.Waarschuwing === 'Ja' && h(React.Fragment, null,
+                            h(FormField, { label: 'Start Datum' },
+                                h(DateField, {
+                                    value: formData.StartWaarschuwing,
+                                    onChange: v => setFormData({...formData, StartWaarschuwing: v})
+                                })
+                            ),
+                            h(FormField, { label: 'Eind Datum' },
+                                h(DateField, {
+                                    value: formData.EindeWaarschuwing,
+                                    onChange: v => setFormData({...formData, EindeWaarschuwing: v})
+                                })
+                            )
+                        )
+                    ),
+                    h(FormSection, { title: 'Contactpersoon', columns: 2 },
+                        h(FormField, { label: 'Zoek Gebruiker' },
+                            h(PeoplePicker, {
+                                value: formData.Contactpersoon,
+                                onChange: user => setFormData({...formData, Contactpersoon: user})
+                            })
+                        ),
+                        h(FormField, { label: 'Email Adres' },
+                            h('input', { 
+                                type: 'email',
+                                value: formData.EmailContact || '', 
+                                onChange: e => setFormData({...formData, EmailContact: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
+                            })
+                        )
+                    ),
+                    h(FormSection, { title: 'Documenten & Links', columns: 1 },
+                        h(FormField, { label: 'Link Algemeen PV' },
+                            h(UrlField, {
+                                value: formData.LinkAlgemeenPV,
+                                onChange: v => setFormData({...formData, LinkAlgemeenPV: v})
+                            })
+                        ),
+                        h(FormField, { label: 'Link Schouwrapporten' },
+                            h(UrlField, {
+                                value: formData.LinkSchouwrapporten,
+                                onChange: v => setFormData({...formData, LinkSchouwrapporten: v})
+                            })
+                        ),
+                        h(FormField, { label: 'Instemmingsbesluit' },
+                            h(UrlField, {
+                                value: formData.Instemmingsbesluit,
+                                onChange: v => setFormData({...formData, Instemmingsbesluit: v})
                             })
                         )
                     )
                 ),
 
-                // Section 4: Contact
-                h(FormSection, { title: 'Contactpersoon', columns: 2 },
-                    h(FormField, { label: 'Zoek Gebruiker' },
-                        h(PeoplePicker, {
-                            value: formData.Contactpersoon,
-                            onChange: user => setFormData({...formData, Contactpersoon: user})
-                        })
+                // --- Problem Form ---
+                modalMode.includes('Problem') && h(React.Fragment, null,
+                    h(FormSection, { title: 'Probleem Details', columns: 2 },
+                        h(FormField, { label: 'Pleeglocatie (Title)', required: true, colSpan: 2 },
+                            h('input', { 
+                                type: 'text', required: true,
+                                value: formData.Title || '', 
+                                onChange: e => setFormData({...formData, Title: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
+                            })
+                        ),
+                        h(FormField, { label: 'Gemeente', required: true },
+                            h('input', { 
+                                type: 'text', required: true,
+                                value: formData.Gemeente || '', 
+                                onChange: e => setFormData({...formData, Gemeente: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
+                            })
+                        ),
+                        h(FormField, { label: 'Feitcodegroep', required: true },
+                            h(SelectField, {
+                                value: formData.Feitcodegroep,
+                                onChange: v => setFormData({...formData, Feitcodegroep: v}),
+                                options: ['Verkeersborden', 'Parkeren', 'Rijgedrag'],
+                                required: true
+                            })
+                        )
                     ),
-                    h(FormField, { label: 'Email Adres' },
-                        h('input', { 
-                            type: 'email',
-                            value: formData.EmailContact || '', 
-                            onChange: e => setFormData({...formData, EmailContact: e.target.value}),
-                            style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }
-                        })
-                    )
-                ),
-
-                // Section 5: Documenten
-                h(FormSection, { title: 'Documenten & Links', columns: 1 },
-                    h(FormField, { label: 'Link Algemeen PV' },
-                        h(UrlField, {
-                            value: formData.LinkAlgemeenPV,
-                            onChange: v => setFormData({...formData, LinkAlgemeenPV: v})
-                        })
+                    h(FormSection, { title: 'Beschrijving', columns: 1 },
+                        h(FormField, { label: 'Probleembeschrijving', required: true },
+                            h('textarea', { 
+                                required: true,
+                                value: formData.Probleembeschrijving || '', 
+                                onChange: e => setFormData({...formData, Probleembeschrijving: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', minHeight: '100px' }
+                            })
+                        )
                     ),
-                    h(FormField, { label: 'Link Schouwrapporten' },
-                        h(UrlField, {
-                            value: formData.LinkSchouwrapporten,
-                            onChange: v => setFormData({...formData, LinkSchouwrapporten: v})
-                        })
-                    ),
-                    h(FormField, { label: 'Instemmingsbesluit' },
-                        h(UrlField, {
-                            value: formData.Instemmingsbesluit,
-                            onChange: v => setFormData({...formData, Instemmingsbesluit: v})
-                        })
+                    h(FormSection, { title: 'Afhandeling', columns: 2 },
+                        h(FormField, { label: 'Status', required: true },
+                            h(SelectField, {
+                                value: formData.Status,
+                                onChange: v => setFormData({...formData, Status: v}),
+                                options: ['Aangemeld', 'In behandeling', 'Uitgezet bij OI', 'Opgelost'],
+                                required: true
+                            })
+                        ),
+                        h(FormField, { label: 'Actie Beoordelaars', required: true },
+                            h(SelectField, {
+                                value: formData.ActieBeoordelaars,
+                                onChange: v => setFormData({...formData, ActieBeoordelaars: v}),
+                                options: ['Geen actie nodig', 'Verzuim opvragen', 'Vasthouden', 'Vernietigen', 'Wijzigen', 'Bekrachtigen'],
+                                required: true
+                            })
+                        ),
+                        h(FormField, { label: 'Afhandelende Beoordelaar' },
+                            h(PeoplePicker, {
+                                value: formData.Beoordelaar, // Pass full object if available
+                                onChange: user => setFormData({...formData, BeoordelaarId: user?.id, Beoordelaar: user})
+                            })
+                        )
                     )
                 ),
 
