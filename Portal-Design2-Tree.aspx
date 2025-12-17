@@ -523,33 +523,46 @@
                 const checkAdmin = async () => {
                     try {
                         // Determine API URL - support sub-sites
-                        let apiUrl = "/_api/web/currentuser/groups";
+                        let baseUrl = "";
                         if (window._spPageContextInfo && window._spPageContextInfo.webAbsoluteUrl) {
-                            apiUrl = window._spPageContextInfo.webAbsoluteUrl + "/_api/web/currentuser/groups";
+                            baseUrl = window._spPageContextInfo.webAbsoluteUrl;
                         }
 
-                        console.log("Checking admin permissions via:", apiUrl);
+                        // 1. Check if Site Admin (Super User)
+                        try {
+                            const userRes = await fetch(baseUrl + "/_api/web/currentuser", {
+                                headers: { "Accept": "application/json;odata=verbose" }
+                            });
+                            if (userRes.ok) {
+                                const userData = await userRes.json();
+                                if (userData.d.IsSiteAdmin) {
+                                    console.log("User is Site Admin. Access granted.");
+                                    setIsAdmin(true);
+                                    return;
+                                }
+                            }
+                        } catch(e) { console.log("Site Admin check skipped"); }
 
-                        const response = await fetch(apiUrl, { 
+                        // 2. Check Group Membership
+                        const groupRes = await fetch(baseUrl + "/_api/web/currentuser/groups", { 
                             headers: { "Accept": "application/json;odata=verbose" } 
                         });
                         
-                        if (response.ok) {
-                            const data = await response.json();
+                        if (groupRes.ok) {
+                            const data = await groupRes.json();
                             const groups = data.d.results.map(g => g.Title);
                             console.log("User groups found:", groups);
                             
                             const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
-                            const isAuthorized = groups.some(g => allowed.includes(g));
+                            // Case insensitive check
+                            const isAuthorized = groups.some(g => allowed.some(a => a.toLowerCase() === g.toLowerCase()));
                             
                             if (isAuthorized) {
-                                console.log("Admin authorized.");
+                                console.log("Admin authorized via Group.");
                                 setIsAdmin(true);
                             } else {
                                 console.warn("User not in allowed admin groups. Found:", groups);
                             }
-                        } else {
-                            console.error("Admin check failed with status:", response.status);
                         }
                     } catch (e) {
                         console.error("Admin check error:", e);
