@@ -22,9 +22,14 @@
         .portal-header {
             background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
             color: white; padding: 32px; border-radius: 16px; margin-bottom: 32px;
-            display: flex; justify-content: space-between; align-items: flex-start;
+            display: flex; justify-content: space-between;
         }
-        .header-content { flex: 1; }
+        .header-content { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+        }
         .recent-changes-board {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -1250,7 +1255,7 @@
                 h('div', { className: 'portal-header' },
                     h('div', { className: 'header-content' },
                         h('h1', { className: 'portal-title' }, 'Digitale handhaving en probleemlocaties'),
-                        h('p', { className: 'portal-subtitle' }, 'Hiërarchische weergave van gemeentes, locaties en problemen')
+                        h('p', { className: 'portal-subtitle' }, 'Hi\u00EBrarchische weergave van gemeentes, locaties en problemen')
                     ),
                     h('div', { className: 'recent-changes-board' },
                         h('div', { className: 'recent-title' }, '🕒 Recent Veranderingen'),
