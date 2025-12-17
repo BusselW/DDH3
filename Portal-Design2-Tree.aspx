@@ -22,7 +22,34 @@
         .portal-header {
             background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
             color: white; padding: 32px; border-radius: 16px; margin-bottom: 32px;
+            display: flex; justify-content: space-between; align-items: flex-start;
         }
+        .header-content { flex: 1; }
+        .recent-changes-board {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 16px;
+            border-radius: 12px;
+            width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-left: 24px;
+        }
+        .recent-title {
+            font-size: 12px; font-weight: 700; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .recent-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px; border-radius: 6px;
+            cursor: pointer; transition: background 0.2s;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .recent-item:last-child { border-bottom: none; }
+        .recent-item:hover { background: rgba(255, 255, 255, 0.1); }
+        .recent-date { font-size: 11px; color: #94a3b8; margin-left: auto; white-space: nowrap; }
+        
         .portal-title {
             font-size: 32px;
             font-weight: 800; margin: 0 0 8px 0;
@@ -628,6 +655,33 @@
                 return filtered;
             }, [groupedData, searchTerm]);
 
+            const recentChanges = useMemo(() => {
+                const allItems = [];
+                data.forEach(loc => {
+                    allItems.push({
+                        type: 'Locatie',
+                        title: loc.Title,
+                        date: new Date(loc.Modified),
+                        id: loc.Id,
+                        data: loc,
+                        gemeente: loc.Gemeente
+                    });
+                    if (loc.problemen) {
+                        loc.problemen.forEach(prob => {
+                            allItems.push({
+                                type: 'Probleem',
+                                title: prob.Title || `Probleem #${prob.Id}`,
+                                date: new Date(prob.Modified),
+                                id: prob.Id,
+                                data: prob,
+                                parentLoc: loc
+                            });
+                        });
+                    }
+                });
+                return allItems.sort((a, b) => b.date - a.date).slice(0, 5);
+            }, [data]);
+
             const toggleNode = (nodeId) => {
                 const newExpanded = new Set(expandedNodes);
                 if (newExpanded.has(nodeId)) {
@@ -1194,8 +1248,58 @@
             return h('div', null,
                 // Header
                 h('div', { className: 'portal-header' },
-                    h('h1', { className: 'portal-title' }, 'Digitale handhaving en probleemlocaties'),
-                    h('p', { className: 'portal-subtitle' }, 'Hiërarchische weergave van gemeentes, locaties en problemen')
+                    h('div', { className: 'header-content' },
+                        h('h1', { className: 'portal-title' }, 'Digitale handhaving en probleemlocaties'),
+                        h('p', { className: 'portal-subtitle' }, 'Hiërarchische weergave van gemeentes, locaties en problemen')
+                    ),
+                    h('div', { className: 'recent-changes-board' },
+                        h('div', { className: 'recent-title' }, '🕒 Recent Veranderingen'),
+                        recentChanges.map(item => 
+                            h('div', { 
+                                className: 'recent-item',
+                                onClick: () => {
+                                    if (item.type === 'Locatie') {
+                                        selectItem('locatie', item.data);
+                                        const newExpanded = new Set(expandedNodes);
+                                        newExpanded.add(item.gemeente);
+                                        setExpandedNodes(newExpanded);
+                                    } else {
+                                        selectItem('locatie', item.parentLoc);
+                                        const newExpanded = new Set(expandedNodes);
+                                        newExpanded.add(item.parentLoc.Gemeente);
+                                        newExpanded.add(item.parentLoc.Id);
+                                        setExpandedNodes(newExpanded);
+                                    }
+                                }
+                            },
+                                h('span', { 
+                                    style: { 
+                                        fontSize: '10px', 
+                                        padding: '2px 6px', 
+                                        borderRadius: '4px',
+                                        background: item.type === 'Locatie' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                        color: item.type === 'Locatie' ? '#60a5fa' : '#f87171',
+                                        fontWeight: '600',
+                                        marginRight: '4px'
+                                    } 
+                                }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
+                                
+                                h('span', { 
+                                    style: { 
+                                        whiteSpace: 'nowrap', 
+                                        overflow: 'hidden', 
+                                        textOverflow: 'ellipsis',
+                                        maxWidth: '140px',
+                                        color: '#e2e8f0'
+                                    } 
+                                }, item.title),
+
+                                h('span', { className: 'recent-date' }, 
+                                    item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+                                )
+                            )
+                        )
+                    )
                 ),
 
                 // Main Layout
