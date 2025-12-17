@@ -350,6 +350,87 @@
             .main-layout { grid-template-columns: 1fr; }
             .sidebar { position: static; max-height: 400px; margin-bottom: 24px; }
         }
+
+        /* Admin Menu */
+        .admin-menu {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            width: 260px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 20px;
+            z-index: 1000;
+            border: 1px solid #e2e8f0;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .admin-header {
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+        .admin-section {
+            margin-bottom: 20px;
+        }
+        .admin-section:last-child { margin-bottom: 0; }
+        .admin-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #334155;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .admin-btn:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .admin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+        .admin-btn.danger:hover:not(:disabled) {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+        
+        /* Admin Selection Style */
+        .tree-item.locatie.admin-selected {
+            border: 1px dashed #3b82f6 !important;
+            background-color: #eff6ff;
+        }
     </style>
 </head>
 <body>
@@ -387,7 +468,47 @@
             CheckCircle: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('path', {d: "M22 11.08V12a10 10 0 1 1-5.93-9.14"}), h('polyline', {points: "22 4 12 14.01 9 11.01"})),
             Empty: () => h('svg', {width: 48, height: 48, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1, strokeLinecap: "round", strokeLinejoin: "round"}, h('rect', {x: "2", y: "7", width: "20", height: "14", rx: "2", ry: "2"}), h('path', {d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"})),
             Stats: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('rect', {x: "2", y: "2", width: "20", height: "20", rx: "2.18", ry: "2.18"}), h('line', {x1: "7", y1: "2", x2: "7", y2: "22"}), h('line', {x1: "17", y1: "2", x2: "17", y2: "22"}), h('line', {x1: "2", y1: "12", x2: "22", y2: "12"})),
-            Search: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('circle', {cx: "11", cy: "11", r: "8"}), h('line', {x1: "21", y1: "21", x2: "16.65", y2: "16.65"}))
+            Search: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('circle', {cx: "11", cy: "11", r: "8"}), h('line', {x1: "21", y1: "21", x2: "16.65", y2: "16.65"})),
+            Settings: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('circle', {cx: "12", cy: "12", r: "3"}), h('path', {d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"})),
+            Plus: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('line', {x1: "12", y1: "5", x2: "12", y2: "19"}), h('line', {x1: "5", y1: "12", x2: "19", y2: "12"})),
+            Edit: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('path', {d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"}), h('path', {d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"})),
+            Trash: () => h('svg', {width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"}, h('polyline', {points: "3 6 5 6 21 6"}), h('path', {d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"}))
+        };
+
+        const AdminMenu = ({ selectedItem, isAdmin }) => {
+            if (!isAdmin) return null;
+
+            const isDDHSelected = selectedItem?.type === 'locatie';
+            
+            return h('div', { className: 'admin-menu' },
+                h('div', { className: 'admin-header' }, h(Icons.Settings), 'Beheer Menu'),
+                
+                h('div', { className: 'admin-section' },
+                    h('div', { className: 'admin-section-title' }, 'DDH Locaties'),
+                    h('button', { className: 'admin-btn', onClick: () => alert('Nieuwe locatie toevoegen') }, 
+                        h(Icons.Plus), 'Toevoegen'
+                    ),
+                    h('button', { 
+                        className: 'admin-btn', 
+                        disabled: !isDDHSelected,
+                        onClick: () => isDDHSelected && alert('Locatie bewerken: ' + selectedItem.data.Title)
+                    }, 
+                        h(Icons.Edit), 'Bewerken'
+                    ),
+                    h('button', { 
+                        className: `admin-btn ${isDDHSelected ? 'danger' : ''}`,
+                        disabled: !isDDHSelected,
+                        onClick: () => isDDHSelected && confirm('Weet u zeker dat u ' + selectedItem.data.Title + ' wilt verwijderen?') && alert('Verwijderd')
+                    }, 
+                        h(Icons.Trash), 'Verwijderen'
+                    )
+                ),
+                
+                h('div', { className: 'admin-section' },
+                    h('div', { className: 'admin-section-title' }, 'Problemen'),
+                    h('div', { style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' } }, 'Selecteer een probleem...')
+                )
+            );
         };
 
         const TreePortal = () => {
@@ -396,6 +517,28 @@
             const [searchTerm, setSearchTerm] = useState('');
             const [selectedItem, setSelectedItem] = useState({ type: 'overview', data: null });
             const [expandedNodes, setExpandedNodes] = useState(new Set());
+            const [isAdmin, setIsAdmin] = useState(false);
+
+            useEffect(() => {
+                const checkAdmin = async () => {
+                    try {
+                        const response = await fetch("/_api/web/currentuser/groups", { 
+                            headers: { "Accept": "application/json;odata=verbose" } 
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            const groups = data.d.results.map(g => g.Title);
+                            const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
+                            if (groups.some(g => allowed.includes(g))) {
+                                setIsAdmin(true);
+                            }
+                        }
+                    } catch (e) {
+                        console.log("Admin check failed", e);
+                    }
+                };
+                checkAdmin();
+            }, []);
 
             useEffect(() => {
                 const fetchData = async () => {
@@ -1042,7 +1185,7 @@
                                         
                                         return h('div', { key: location.Id },
                                             h('div', {
-                                                className: `tree-item locatie ${selectedItem.type === 'locatie' && selectedItem.data?.Id === location.Id ? 'active' : ''} ${hasActiveProblems ? 'has-active-problems' : ''}`,
+                                                className: `tree-item locatie ${selectedItem.type === 'locatie' && selectedItem.data?.Id === location.Id ? 'active' : ''} ${hasActiveProblems ? 'has-active-problems' : ''} ${isAdmin && selectedItem.type === 'locatie' && selectedItem.data?.Id === location.Id ? 'admin-selected' : ''}`,
                                                 onClick: () => {
                                                     selectItem('locatie', location);
                                                     toggleNode(location.Id);
@@ -1091,8 +1234,10 @@
                     
                     // Content Area
                     h('div', { className: 'content-area' }, renderContent())
-                )
-                // Footer removed here
+                ),
+                
+                // Admin Menu
+                h(AdminMenu, { selectedItem, isAdmin })
             );
         };
 
