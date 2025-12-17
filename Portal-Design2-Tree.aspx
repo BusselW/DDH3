@@ -1284,7 +1284,13 @@
 
                 // Recent Changes Bar
                 h('div', { className: 'recent-changes-bar' },
-                    h('div', { className: 'recent-bar-title' }, '🕒 Recent Veranderingen'),
+                    h('div', { className: 'recent-bar-title' }, 
+                        h('svg', { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", style: { marginRight: '8px' } },
+                            h('circle', { cx: 12, cy: 12, r: 10 }),
+                            h('polyline', { points: "12 6 12 12 16 14" })
+                        ),
+                        'Recente Veranderingen'
+                    ),
                     h('div', { className: 'recent-grid' },
                         recentChanges.map(item => 
                             h('div', { 
@@ -1329,7 +1335,11 @@
                                     className: 'refresh-btn',
                                     title: 'Ververs data',
                                     onClick: () => loadData(true) // Force refresh
-                                }, h(Icons.Refresh || (() => h('span', null, '↻'))))
+                                }, h('svg', { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" },
+                                    h('path', { d: "M23 4v6h-6" }),
+                                    h('path', { d: "M1 20v-6h6" }),
+                                    h('path', { d: "M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" })
+                                ))
                             ),
                             h('div', { style: { position: 'relative' } },
                                 h('input', {
