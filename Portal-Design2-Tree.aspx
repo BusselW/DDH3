@@ -522,19 +522,42 @@
             useEffect(() => {
                 const checkAdmin = async () => {
                     try {
-                        const response = await fetch("/_api/web/currentuser/groups", { 
+                        // Determine API URL - support sub-sites
+                        let apiUrl = "/_api/web/currentuser/groups";
+                        if (window._spPageContextInfo && window._spPageContextInfo.webAbsoluteUrl) {
+                            apiUrl = window._spPageContextInfo.webAbsoluteUrl + "/_api/web/currentuser/groups";
+                        }
+
+                        console.log("Checking admin permissions via:", apiUrl);
+
+                        const response = await fetch(apiUrl, { 
                             headers: { "Accept": "application/json;odata=verbose" } 
                         });
+                        
                         if (response.ok) {
                             const data = await response.json();
                             const groups = data.d.results.map(g => g.Title);
+                            console.log("User groups found:", groups);
+                            
                             const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
-                            if (groups.some(g => allowed.includes(g))) {
+                            const isAuthorized = groups.some(g => allowed.includes(g));
+                            
+                            if (isAuthorized) {
+                                console.log("Admin authorized.");
                                 setIsAdmin(true);
+                            } else {
+                                console.warn("User not in allowed admin groups. Found:", groups);
                             }
+                        } else {
+                            console.error("Admin check failed with status:", response.status);
                         }
                     } catch (e) {
-                        console.log("Admin check failed", e);
+                        console.error("Admin check error:", e);
+                        // Fallback for local development/testing
+                        if (window.location.hostname === 'localhost' || window.location.protocol === 'file:') {
+                            console.log("Local environment detected, enabling admin for testing.");
+                            setIsAdmin(true);
+                        }
                     }
                 };
                 checkAdmin();
