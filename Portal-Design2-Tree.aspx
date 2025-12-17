@@ -687,11 +687,15 @@
                 return allItems.sort((a, b) => b.date - a.date).slice(0, 5);
             }, [data]);
 
-            const toggleNode = (nodeId) => {
+            const toggleNode = (nodeId, siblings = []) => {
                 const newExpanded = new Set(expandedNodes);
                 if (newExpanded.has(nodeId)) {
                     newExpanded.delete(nodeId);
                 } else {
+                    // Close siblings (Accordion behavior)
+                    if (siblings && siblings.length > 0) {
+                        siblings.forEach(siblingId => newExpanded.delete(siblingId));
+                    }
                     newExpanded.add(nodeId);
                 }
                 setExpandedNodes(newExpanded);
@@ -1014,7 +1018,7 @@
                                             }, 
                                                 h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
                                                 h('div', null,
-                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Algemeen_x0020_PV.Description || 'Algemeen PV'),
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, 'Algemeen Proces-Verbaal'),
                                                     h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open in SharePoint')
                                                 )
                                             ),
@@ -1032,7 +1036,7 @@
                                                 onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
                                                 onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
                                             }, h(Icons.FolderOpen))
-                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen Algemeen PV beschikbaar'),
+                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Algemeen Proces-Verbaal niet beschikbaar'),
 
                                         itemData.Link_x0020_Schouwrapporten ? h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
                                             // Primary Button (SharePoint)
@@ -1050,7 +1054,7 @@
                                             }, 
                                                 h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
                                                 h('div', null,
-                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Link_x0020_Schouwrapporten.Description || 'Schouwrapporten'),
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, 'Schouwrapporten'),
                                                     h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open in SharePoint')
                                                 )
                                             ),
@@ -1068,7 +1072,7 @@
                                                 onMouseOver: (e) => { e.currentTarget.style.background = '#e2e8f0'; },
                                                 onMouseOut: (e) => { e.currentTarget.style.background = '#f1f5f9'; }
                                             }, h(Icons.FolderOpen))
-                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Geen schouwrapporten beschikbaar'),
+                                        ) : h('div', { style: { padding: '12px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' } }, 'Schouwrapporten niet beschikbaar'),
 
                                         itemData.Instemmingsbesluit ? h('div', { className: 'split-btn-container', style: { display: 'flex', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' } },
                                             // Primary Button (SharePoint)
@@ -1086,7 +1090,7 @@
                                             }, 
                                                 h('div', { style: { color: '#3b82f6', display: 'flex' } }, h(Icons.Folder)),
                                                 h('div', null,
-                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, itemData.Instemmingsbesluit.Description || 'Instemmingsbesluit'),
+                                                    h('div', { style: { fontWeight: '600', fontSize: '14px' } }, 'Instemmingsbesluit'),
                                                     h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Open in SharePoint')
                                                 )
                                             ),
@@ -1351,13 +1355,14 @@
                                 const isExpanded = expandedNodes.has(gemeente);
                                 const activeProblems = locations.reduce((sum, loc) => 
                                     sum + (loc.problemen?.filter(p => p.Opgelost_x003f_ !== 'Opgelost').length || 0), 0);
+                                const allGemeentes = Object.keys(filteredData);
                                 
                                 return h('div', { key: gemeente, className: 'tree-node' },
                                     h('div', {
                                         className: `tree-item gemeente ${selectedItem.type === 'gemeente' && selectedItem.data === gemeente ? 'active' : ''} ${activeProblems > 0 ? 'has-active-problems' : ''}`,
                                         onClick: () => {
                                             selectItem('gemeente', gemeente);
-                                            toggleNode(gemeente);
+                                            toggleNode(gemeente, allGemeentes);
                                         }
                                     },
                                         // Toggle Icon (Chevron)
@@ -1365,7 +1370,7 @@
                                             className: 'tree-toggle',
                                             onClick: (e) => {
                                                 e.stopPropagation();
-                                                toggleNode(gemeente);
+                                                toggleNode(gemeente, allGemeentes);
                                             }
                                         }, isExpanded ? h(Icons.ChevronDown) : h(Icons.ChevronRight)),
                                         // Type Icon (Folder)
@@ -1381,13 +1386,14 @@
                                         const activeProbs = problems.filter(p => p.Opgelost_x003f_ !== 'Opgelost');
                                         const isLocExpanded = expandedNodes.has(location.Id);
                                         const hasActiveProblems = activeProbs.length > 0;
+                                        const siblingIds = locations.map(l => l.Id);
                                         
                                         return h('div', { key: location.Id },
                                             h('div', {
                                                 className: `tree-item locatie ${selectedItem.type === 'locatie' && selectedItem.data?.Id === location.Id ? 'active' : ''} ${hasActiveProblems ? 'has-active-problems' : ''} ${isAdmin && selectedItem.type === 'locatie' && selectedItem.data?.Id === location.Id ? 'admin-selected' : ''}`,
                                                 onClick: () => {
                                                     selectItem('locatie', location);
-                                                    toggleNode(location.Id);
+                                                    toggleNode(location.Id, siblingIds);
                                                 }
                                             },
                                                 // Toggle Icon (Chevron) - only if there are problems
@@ -1395,7 +1401,7 @@
                                                     className: 'tree-toggle',
                                                     onClick: (e) => {
                                                         e.stopPropagation();
-                                                        toggleNode(location.Id);
+                                                        toggleNode(location.Id, siblingIds);
                                                     }
                                                 }, isLocExpanded ? h(Icons.ChevronDown) : h(Icons.ChevronRight)) : h('div', { className: 'tree-toggle' }), // spacer
                                                 
