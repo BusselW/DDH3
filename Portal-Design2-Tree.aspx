@@ -30,30 +30,6 @@
             flex-direction: column; 
             justify-content: flex-end; 
         }
-        .recent-changes-board {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 16px;
-            border-radius: 12px;
-            width: 320px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-left: 24px;
-        }
-        .recent-title {
-            font-size: 12px; font-weight: 700; margin-bottom: 12px;
-            text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .recent-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px; border-radius: 6px;
-            cursor: pointer; transition: background 0.2s;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .recent-item:last-child { border-bottom: none; }
-        .recent-item:hover { background: rgba(255, 255, 255, 0.1); }
-        .recent-date { font-size: 11px; color: #94a3b8; margin-left: auto; white-space: nowrap; }
         
         .portal-title {
             font-size: 32px;
@@ -128,7 +104,6 @@
         }
         .recent-date { font-size: 11px; color: #64748b; margin-left: auto; white-space: nowrap; }
         
-        .portal-title {
         .tree-container {
             max-height: 70vh;
             overflow-y: auto;
