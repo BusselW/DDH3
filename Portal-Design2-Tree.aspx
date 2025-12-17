@@ -1307,7 +1307,10 @@
                                                     className: `tree-item problem ${isActive ? 'active-problem' : 'resolved-problem'}`,
                                                     onClick: (e) => {
                                                         e.stopPropagation();
-                                                        handleSelect({ type: 'problem', data: problem });
+                                                        // Open the parent location view
+                                                        selectItem('locatie', location);
+                                                        // Optional: We could scroll to the specific problem here if we passed an ID
+                                                        // For now, just opening the location page as requested
                                                     }
                                                 },
                                                     // No Toggle Icon
