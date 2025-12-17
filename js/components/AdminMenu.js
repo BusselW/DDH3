@@ -228,7 +228,10 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
         setFormData({
             Title: '', Gemeente: '', Feitcodegroep: 'Verkeersborden', 
             Status: 'Aangemeld', ActieBeoordelaars: 'Geen actie nodig',
-            ProbleemID: ''
+            ProbleemID: '',
+            Startdatum: null, Einddatum: null,
+            UitlegActieBeoordelaar: '',
+            Melder: null, Eigenaar: null, Beoordelaar: null
         });
         setIsModalOpen(true);
     };
@@ -244,9 +247,13 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
             Probleembeschrijving: p.Probleembeschrijving,
             Status: p.Opgelost_x003f_,
             ActieBeoordelaars: p.Actie_x0020_Beoordelaars,
-            BeoordelaarId: p.Beoordelaar?.Id,
-            Beoordelaar: p.Beoordelaar, // For display context if needed
-            ProbleemID: p.ProbleemID || ''
+            ProbleemID: p.ProbleemID || '',
+            Startdatum: p.Startdatum,
+            Einddatum: p.Einddatum,
+            UitlegActieBeoordelaar: p.Uitleg_x0020_actie_x0020_beoorde,
+            Beoordelaar: p.Beoordelaar,
+            Melder: p.Melder,
+            Eigenaar: p.Eigenaar
         });
         setIsModalOpen(true);
     };
@@ -272,7 +279,12 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
         setLoading(true);
         try {
             if (modalMode.includes('Problem')) {
-                const serviceData = { ...formData };
+                const serviceData = { 
+                    ...formData,
+                    BeoordelaarId: formData.Beoordelaar?.Id || formData.Beoordelaar?.id,
+                    MelderId: formData.Melder?.Id || formData.Melder?.id,
+                    EigenaarId: formData.Eigenaar?.Id || formData.Eigenaar?.id
+                };
                 if (modalMode === 'createProblem') {
                     await DDHAdminService.addProblem(serviceData);
                     alert('Probleem aangemaakt');
@@ -491,8 +503,8 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
 
                 // --- Problem Form ---
                 modalMode.includes('Problem') && h(React.Fragment, null,
-                    h(FormSection, { title: 'Probleem Details', columns: 2 },
-                        h(FormField, { label: 'Pleeglocatie (Title)', required: true, colSpan: 2 },
+                    h(FormSection, { title: 'Algemeen', columns: 2 },
+                        h(FormField, { label: 'Titel (Pleeglocatie)', required: true, colSpan: 2 },
                             h('input', { 
                                 type: 'text', required: true,
                                 value: formData.Title || '', 
@@ -525,7 +537,29 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                             })
                         )
                     ),
-                    h(FormSection, { title: 'Beschrijving', columns: 1 },
+                    h(FormSection, { title: 'Status & Planning', columns: 2 },
+                        h(FormField, { label: 'Status', required: true },
+                            h(SelectField, {
+                                value: formData.Status,
+                                onChange: v => setFormData({...formData, Status: v}),
+                                options: ['Aangemeld', 'In behandeling', 'Uitgezet bij OI', 'Opgelost'],
+                                required: true
+                            })
+                        ),
+                        h(FormField, { label: 'Startdatum' },
+                            h(DateField, {
+                                value: formData.Startdatum,
+                                onChange: v => setFormData({...formData, Startdatum: v})
+                            })
+                        ),
+                        h(FormField, { label: 'Einddatum' },
+                            h(DateField, {
+                                value: formData.Einddatum,
+                                onChange: v => setFormData({...formData, Einddatum: v})
+                            })
+                        )
+                    ),
+                    h(FormSection, { title: 'Inhoud', columns: 1 },
                         h(FormField, { label: 'Probleembeschrijving', required: true },
                             h('textarea', { 
                                 required: true,
@@ -535,15 +569,7 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                             })
                         )
                     ),
-                    h(FormSection, { title: 'Afhandeling', columns: 2 },
-                        h(FormField, { label: 'Status', required: true },
-                            h(SelectField, {
-                                value: formData.Status,
-                                onChange: v => setFormData({...formData, Status: v}),
-                                options: ['Aangemeld', 'In behandeling', 'Uitgezet bij OI', 'Opgelost'],
-                                required: true
-                            })
-                        ),
+                    h(FormSection, { title: 'Beoordeling', columns: 2 },
                         h(FormField, { label: 'Actie Beoordelaars', required: true },
                             h(SelectField, {
                                 value: formData.ActieBeoordelaars,
@@ -554,8 +580,29 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                         ),
                         h(FormField, { label: 'Afhandelende Beoordelaar' },
                             h(PeoplePicker, {
-                                value: formData.Beoordelaar, // Pass full object if available
-                                onChange: user => setFormData({...formData, BeoordelaarId: user?.id, Beoordelaar: user})
+                                value: formData.Beoordelaar,
+                                onChange: user => setFormData({...formData, Beoordelaar: user})
+                            })
+                        ),
+                        h(FormField, { label: 'Uitleg Actie Beoordelaar', colSpan: 2 },
+                            h('textarea', { 
+                                value: formData.UitlegActieBeoordelaar || '', 
+                                onChange: e => setFormData({...formData, UitlegActieBeoordelaar: e.target.value}),
+                                style: { width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', minHeight: '60px' }
+                            })
+                        )
+                    ),
+                    h(FormSection, { title: 'Betrokkenen', columns: 2 },
+                        h(FormField, { label: 'Melder' },
+                            h(PeoplePicker, {
+                                value: formData.Melder,
+                                onChange: user => setFormData({...formData, Melder: user})
+                            })
+                        ),
+                        h(FormField, { label: 'Eigenaar' },
+                            h(PeoplePicker, {
+                                value: formData.Eigenaar,
+                                onChange: user => setFormData({...formData, Eigenaar: user})
                             })
                         )
                     )

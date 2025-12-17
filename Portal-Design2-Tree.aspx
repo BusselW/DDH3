@@ -549,7 +549,7 @@
             useEffect(() => {
                 const checkAdmin = async () => {
                     try {
-                        const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
+                        const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3. Senioren beoordelen"];
                         let allGroups = new Set();
 
                         const fetchFromUrl = async (url) => {

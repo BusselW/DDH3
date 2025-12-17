@@ -232,14 +232,19 @@ export const DDHAdminService = {
             Probleembeschrijving: data.Probleembeschrijving,
             Opgelost_x003f_: data.Status,
             Actie_x0020_Beoordelaars: data.ActieBeoordelaars,
-            Aanmaakdatum: new Date().toISOString(),
-            ProbleemID: data.ProbleemID
+            Aanmaakdatum: data.Aanmaakdatum || new Date().toISOString(),
+            ProbleemID: data.ProbleemID,
+            Startdatum: data.Startdatum,
+            Einddatum: data.Einddatum,
+            Uitleg_x0020_actie_x0020_beoorde: data.UitlegActieBeoordelaar
         };
 
         if (data.BeoordelaarId) {
             // UserMulti field expects an array of IDs in 'results'
             payload.BeoordelaarId = { results: [data.BeoordelaarId] };
         }
+        if (data.MelderId) payload.MelderId = data.MelderId;
+        if (data.EigenaarId) payload.EigenaarId = data.EigenaarId;
 
         const response = await fetch(endpoint, {
             method: "POST",
@@ -266,12 +271,17 @@ export const DDHAdminService = {
             Probleembeschrijving: data.Probleembeschrijving,
             Opgelost_x003f_: data.Status,
             Actie_x0020_Beoordelaars: data.ActieBeoordelaars,
-            ProbleemID: data.ProbleemID
+            ProbleemID: data.ProbleemID,
+            Startdatum: data.Startdatum,
+            Einddatum: data.Einddatum,
+            Uitleg_x0020_actie_x0020_beoorde: data.UitlegActieBeoordelaar
         };
 
         if (data.BeoordelaarId) {
             payload.BeoordelaarId = { results: [data.BeoordelaarId] };
         }
+        if (data.MelderId) payload.MelderId = data.MelderId;
+        if (data.EigenaarId) payload.EigenaarId = data.EigenaarId;
 
         const response = await fetch(endpoint, {
             method: "POST",
