@@ -163,7 +163,7 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
     const [selectedProblemId, setSelectedProblemId] = useState('');
 
     const isDDHSelected = selectedItem?.type === 'locatie';
-    const selectedProblem = problems.find(p => p.Id === parseInt(selectedProblemId));
+    const selectedProblem = Array.isArray(problems) ? problems.find(p => p.Id === parseInt(selectedProblemId)) : null;
 
     useEffect(() => {
         loadProblems();
@@ -173,9 +173,10 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
         try {
             const data = await DDHAdminService.getProblems();
             console.log("Loaded problems:", data);
-            setProblems(data);
+            setProblems(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error("Error loading problems", e);
+            setProblems([]);
         }
     };
 
@@ -346,7 +347,7 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
             // --- Problemen Section ---
             h('div', { className: 'admin-section' },
                 h('div', { className: 'admin-section-title', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, 
-                    `Problemen (${problems.length})`,
+                    `Problemen (${problems?.length || 0})`,
                     h('button', { 
                         onClick: loadProblems, 
                         style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#3b82f6', padding: '0 4px' },
@@ -358,8 +359,8 @@ export const AdminMenu = ({ selectedItem, isAdmin, onRefresh }) => {
                     onChange: e => setSelectedProblemId(e.target.value),
                     style: { width: '100%', padding: '8px', marginBottom: '10px', border: '1px solid #cbd5e1', borderRadius: '6px' }
                 },
-                    h('option', { value: '' }, problems.length === 0 ? 'Geen problemen gevonden' : '-- Selecteer een probleem --'),
-                    problems.map(p => h('option', { key: p.Id, value: p.Id }, `${p.Title} - ${p.Gemeente}`))
+                    h('option', { value: '' }, (problems?.length || 0) === 0 ? 'Geen problemen gevonden' : '-- Selecteer een probleem --'),
+                    (problems || []).map(p => h('option', { key: p.Id, value: p.Id }, `${p.Title} - ${p.Gemeente}`))
                 ),
                 h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading }, 
                     h(Icons.Plus), 'Toevoegen'

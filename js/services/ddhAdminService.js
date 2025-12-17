@@ -61,7 +61,7 @@ export const DDHAdminService = {
             headers: { "Accept": "application/json; odata=verbose" }
         });
         const data = await response.json();
-        return data.d.results;
+        return data.d && data.d.results ? data.d.results : [];
     },
 
     ensureUser: async (loginName) => {
