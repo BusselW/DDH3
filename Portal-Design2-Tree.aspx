@@ -43,15 +43,16 @@
         /* Sidebar and Main Layout */
         .main-layout {
             display: grid;
-            grid-template-columns: 320px 1fr 320px; gap: 24px;
+            grid-template-columns: 320px 1fr; gap: 24px;
         }
         
         /* Sidebar with Tree */
-        .sidebar, .right-sidebar {
+        .sidebar {
             background: white;
             border-radius: 16px; padding: 24px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08); height: fit-content;
             position: sticky; top: 20px;
+            display: flex; flex-direction: column; gap: 20px;
         }
         .sidebar-header {
             margin-bottom: 20px;
@@ -79,30 +80,50 @@
             border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* Recent Changes in Sidebar */
-        .recent-changes-board {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #e2e8f0;
+        /* Recent Changes Footer */
+        .recent-changes-footer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
         }
-        .recent-title {
-            font-size: 14px; font-weight: 700; margin-bottom: 16px;
-            text-transform: uppercase; letter-spacing: 0.5px; color: #1e293b;
+        .recent-footer-title {
+            font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1e293b;
             display: flex; align-items: center; gap: 8px;
         }
-        .recent-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px; border-radius: 8px;
-            cursor: pointer; transition: all 0.2s;
-            font-size: 13px;
-            border: 1px solid transparent;
-            margin-bottom: 4px;
+        .recent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
         }
-        .recent-item:hover { 
-            background: #f1f5f9; 
-            border-color: #e2e8f0;
+        .recent-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e2e8f0;
+            display: flex; flex-direction: column; gap: 8px;
         }
-        .recent-date { font-size: 11px; color: #64748b; margin-left: auto; white-space: nowrap; }
+        .recent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
+        }
+        .recent-card-header {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .recent-tag {
+            font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .recent-tag.loc { background: #eff6ff; color: #3b82f6; }
+        .recent-tag.prb { background: #fef2f2; color: #ef4444; }
+        .recent-card-date { font-size: 11px; color: #94a3b8; }
+        .recent-card-title {
+            font-size: 14px; font-weight: 600; color: #1e293b;
+            overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
         
         .tree-container {
             max-height: 70vh;
@@ -1407,65 +1428,8 @@
                                     })
                                 );
                             })
-                        )
-                    ),
-                    
-                    // Content Area
-                    h('div', { className: 'content-area' }, renderContent()),
-
-                    // Right Sidebar
-                    h('div', { className: 'right-sidebar' },
-                        // Recent Changes
-                        h('div', { className: 'recent-changes-board' },
-                            h('div', { className: 'recent-title' }, '🕒 Recent Veranderingen'),
-                            recentChanges.map(item => 
-                                h('div', { 
-                                    className: 'recent-item',
-                                    onClick: () => {
-                                        if (item.type === 'Locatie') {
-                                            selectItem('locatie', item.data);
-                                            const newExpanded = new Set(expandedNodes);
-                                            newExpanded.add(item.gemeente);
-                                            setExpandedNodes(newExpanded);
-                                        } else {
-                                            selectItem('locatie', item.parentLoc);
-                                            const newExpanded = new Set(expandedNodes);
-                                            newExpanded.add(item.parentLoc.Gemeente);
-                                            newExpanded.add(item.parentLoc.Id);
-                                            setExpandedNodes(newExpanded);
-                                        }
-                                    }
-                                },
-                                    h('span', { 
-                                        style: { 
-                                            fontSize: '10px', 
-                                            padding: '2px 6px', 
-                                            borderRadius: '4px',
-                                            background: item.type === 'Locatie' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                            color: item.type === 'Locatie' ? '#2563eb' : '#dc2626',
-                                            fontWeight: '600',
-                                            marginRight: '4px'
-                                        } 
-                                    }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
-                                    
-                                    h('span', { 
-                                        style: { 
-                                            whiteSpace: 'nowrap', 
-                                            overflow: 'hidden', 
-                                            textOverflow: 'ellipsis',
-                                            maxWidth: '140px',
-                                            color: '#334155'
-                                        } 
-                                    }, item.title),
-
-                                    h('span', { className: 'recent-date' }, 
-                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
-                                    )
-                                )
-                            )
                         ),
-
-                        // Admin Menu
+                        // Admin Menu in Sidebar
                         h(AdminMenu, { 
                             selectedItem, 
                             selectedProblem: adminSelectedProblem,
@@ -1475,6 +1439,45 @@
                                 setAdminSelectedProblem(null);
                             }
                         })
+                    ),
+                    
+                    // Content Area
+                    h('div', { className: 'content-area' }, renderContent())
+                ),
+
+                // Recent Changes Footer
+                h('div', { className: 'recent-changes-footer' },
+                    h('div', { className: 'recent-footer-title' }, '🕒 Recent Veranderingen'),
+                    h('div', { className: 'recent-grid' },
+                        recentChanges.map(item => 
+                            h('div', { 
+                                className: 'recent-card',
+                                onClick: () => {
+                                    if (item.type === 'Locatie') {
+                                        selectItem('locatie', item.data);
+                                        const newExpanded = new Set(expandedNodes);
+                                        newExpanded.add(item.gemeente);
+                                        setExpandedNodes(newExpanded);
+                                    } else {
+                                        selectItem('locatie', item.parentLoc);
+                                        const newExpanded = new Set(expandedNodes);
+                                        newExpanded.add(item.parentLoc.Gemeente);
+                                        newExpanded.add(item.parentLoc.Id);
+                                        setExpandedNodes(newExpanded);
+                                    }
+                                }
+                            },
+                                h('div', { className: 'recent-card-header' },
+                                    h('span', { 
+                                        className: `recent-tag ${item.type === 'Locatie' ? 'loc' : 'prb'}`
+                                    }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
+                                    h('span', { className: 'recent-card-date' }, 
+                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+                                    )
+                                ),
+                                h('div', { className: 'recent-card-title' }, item.title)
+                            )
+                        )
                     )
                 )
             );
