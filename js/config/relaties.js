@@ -217,7 +217,8 @@ export const RelatieQueries = {
 
     // Haal eerst alle DH locaties op
     // We voegen expliciet gemeenteID toe omdat berekende velden soms niet in * zitten
-    let dhUrl = LIJSTEN.digitaleHandhaving.endpoints.alleItems() + '?$select=*,gemeenteID';
+    // We voegen $top=5000 toe om limieten te voorkomen (default is 100)
+    let dhUrl = LIJSTEN.digitaleHandhaving.endpoints.alleItems() + '?$select=*,gemeenteID&$top=5000';
     if (filterDH) {
       dhUrl += `&$filter=${filterDH}`;
     }
@@ -242,8 +243,9 @@ export const RelatieQueries = {
     }
 
     // Haal alle problemen op in één query voor performance
+    // We voegen $top=5000 toe om limieten te voorkomen
     let problemenUrl = LIJSTEN.problemenPleeglocaties.endpoints.alleItems() + 
-                       '?$select=*,Eigenaar/Title,Beoordelaar/Title,Melder/Title&$expand=Eigenaar,Beoordelaar,Melder';
+                       '?$select=*,Eigenaar/Title,Beoordelaar/Title,Melder/Title&$expand=Eigenaar,Beoordelaar,Melder&$top=5000';
     if (filterProblemen) {
       problemenUrl += `&$filter=${filterProblemen}`;
     }
