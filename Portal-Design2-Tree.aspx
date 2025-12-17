@@ -522,20 +522,54 @@
             useEffect(() => {
                 const checkAdmin = async () => {
                     try {
-                        // Determine API URL - support sub-sites
-                        let baseUrl = "";
-                        if (window._spPageContextInfo && window._spPageContextInfo.webAbsoluteUrl) {
-                            baseUrl = window._spPageContextInfo.webAbsoluteUrl;
+                        const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
+                        let allGroups = new Set();
+
+                        // Helper to fetch groups from a specific web URL
+                        const fetchGroups = async (webUrl) => {
+                            try {
+                                // Ensure no double slashes (except protocol)
+                                const url = webUrl.replace(/\/+$/, "") + "/_api/web/currentuser/groups";
+                                console.log("Fetching groups from:", url);
+                                const res = await fetch(url, { 
+                                    headers: { "Accept": "application/json;odata=verbose" } 
+                                });
+                                if (res.ok) {
+                                    const data = await res.json();
+                                    if (data.d && data.d.results) {
+                                        data.d.results.forEach(g => allGroups.add(g.Title));
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn("Failed to fetch groups from " + webUrl, e);
+                            }
+                        };
+
+                        // Get Context Info
+                        let currentWebUrl = "";
+                        let siteUrl = "";
+                        
+                        if (window._spPageContextInfo) {
+                            currentWebUrl = window._spPageContextInfo.webAbsoluteUrl || "";
+                            siteUrl = window._spPageContextInfo.siteAbsoluteUrl || "";
                         }
 
-                        // 1. Check if Site Admin (Super User)
+                        // 1. Fetch from Current Web
+                        await fetchGroups(currentWebUrl);
+
+                        // 2. Fetch from Root Web (if different and available)
+                        if (siteUrl && siteUrl !== currentWebUrl) {
+                            await fetchGroups(siteUrl);
+                        }
+
+                        // 3. Check Site Admin (Super User) on current web
                         try {
-                            const userRes = await fetch(baseUrl + "/_api/web/currentuser", {
+                            const userRes = await fetch((currentWebUrl || "") + "/_api/web/currentuser", {
                                 headers: { "Accept": "application/json;odata=verbose" }
                             });
                             if (userRes.ok) {
                                 const userData = await userRes.json();
-                                if (userData.d.IsSiteAdmin) {
+                                if (userData.d && userData.d.IsSiteAdmin) {
                                     console.log("User is Site Admin. Access granted.");
                                     setIsAdmin(true);
                                     return;
@@ -543,27 +577,20 @@
                             }
                         } catch(e) { console.log("Site Admin check skipped"); }
 
-                        // 2. Check Group Membership
-                        const groupRes = await fetch(baseUrl + "/_api/web/currentuser/groups", { 
-                            headers: { "Accept": "application/json;odata=verbose" } 
-                        });
+                        // 4. Validate Groups
+                        const groupsList = Array.from(allGroups);
+                        console.log("All found groups (Current + Root):", groupsList);
+
+                        // Case insensitive check
+                        const isAuthorized = groupsList.some(g => allowed.some(a => a.toLowerCase() === g.toLowerCase()));
                         
-                        if (groupRes.ok) {
-                            const data = await groupRes.json();
-                            const groups = data.d.results.map(g => g.Title);
-                            console.log("User groups found:", groups);
-                            
-                            const allowed = ["1. Sharepoint beheer", "1.1 Mulder MT", "2.3 Senioren beoordelen"];
-                            // Case insensitive check
-                            const isAuthorized = groups.some(g => allowed.some(a => a.toLowerCase() === g.toLowerCase()));
-                            
-                            if (isAuthorized) {
-                                console.log("Admin authorized via Group.");
-                                setIsAdmin(true);
-                            } else {
-                                console.warn("User not in allowed admin groups. Found:", groups);
-                            }
+                        if (isAuthorized) {
+                            console.log("Admin authorized via Group.");
+                            setIsAdmin(true);
+                        } else {
+                            console.warn("User not in allowed admin groups. Found:", groupsList);
                         }
+
                     } catch (e) {
                         console.error("Admin check error:", e);
                         // Fallback for local development/testing
