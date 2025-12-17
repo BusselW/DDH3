@@ -453,7 +453,7 @@
         const { createRoot } = window.ReactDOM;
 
         // Import configuration and navigation
-        const v = Date.now();
+        const v = Date.now() + 1;
         const { DDH_CONFIG } = await import('./js/config/index.js?v=' + v);
         const { TEMP_PLACEHOLDER_DATA } = await import('./js/components/pageNavigation.js?v=' + v);
         const { AdminMenu } = await import('./js/components/AdminMenu.js?v=' + v);
@@ -1309,8 +1309,10 @@
                                                         e.stopPropagation();
                                                         // Open the parent location view
                                                         selectItem('locatie', location);
-                                                        // Optional: We could scroll to the specific problem here if we passed an ID
-                                                        // For now, just opening the location page as requested
+                                                        // Also select for admin if applicable
+                                                        if (isAdmin) {
+                                                            setAdminSelectedProblem(problem);
+                                                        }
                                                     }
                                                 },
                                                     // No Toggle Icon
