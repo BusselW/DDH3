@@ -1427,7 +1427,11 @@
                             
                             // Gemeente nodes
                             Object.entries(filteredData)
-                                .sort(([a], [b]) => a.localeCompare(b))
+                                .sort(([a], [b]) => {
+                                    if (a === 'Overig') return 1;
+                                    if (b === 'Overig') return -1;
+                                    return a.localeCompare(b);
+                                })
                                 .map(([gemeente, locations]) => {
                                 const isExpanded = expandedNodes.has(gemeente);
                                 const activeProblems = locations.reduce((sum, loc) => 
