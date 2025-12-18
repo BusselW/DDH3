@@ -15,6 +15,17 @@ export const InteractiveTour = ({ isOpen, onClose }) => {
             content: 'Hier ziet u in één oogopslag wat er recent is gewijzigd of toegevoegd. Klik op een kaart om direct naar het item te gaan.'
         },
         {
+            target: '.content-area',
+            title: 'Details & Statistieken',
+            content: 'Hier ziet u de details. Bovenin staan statistieken (tegels). Deze zijn klikbaar! Klik op "Actieve Problemen" om direct naar locaties met problemen te gaan.'
+        },
+        {
+            target: '.detail-card.warning',
+            title: 'Interactieve Statistieken',
+            content: 'Probeer het eens: klik op deze tegel om te filteren op actieve problemen.',
+            condition: () => document.querySelector('.detail-card.warning') !== null
+        },
+        {
             target: '.sidebar',
             title: 'Navigatie',
             content: 'Gebruik de boomstructuur om door gemeentes en locaties te bladeren. U kunt ook zoeken op naam.'
@@ -29,17 +40,6 @@ export const InteractiveTour = ({ isOpen, onClose }) => {
             title: 'Stap 2: Locatie Selecteren',
             content: 'Klik op een locatie om de details en eventuele problemen te bekijken. Locaties met actieve problemen zijn rood gemarkeerd.',
             condition: () => document.querySelector('.tree-item.locatie') !== null
-        },
-        {
-            target: '.content-area',
-            title: 'Details & Statistieken',
-            content: 'Hier ziet u de details. Bovenin staan statistieken (tegels). Deze zijn klikbaar! Klik op "Actieve Problemen" om direct naar locaties met problemen te gaan.'
-        },
-        {
-            target: '.detail-card.warning',
-            title: 'Interactieve Statistieken',
-            content: 'Probeer het eens: klik op deze tegel om te filteren op actieve problemen.',
-            condition: () => document.querySelector('.detail-card.warning') !== null
         },
         {
             target: '.admin-menu',

@@ -1426,7 +1426,9 @@
                             ),
                             
                             // Gemeente nodes
-                            Object.entries(filteredData).map(([gemeente, locations]) => {
+                            Object.entries(filteredData)
+                                .sort(([a], [b]) => a.localeCompare(b))
+                                .map(([gemeente, locations]) => {
                                 const isExpanded = expandedNodes.has(gemeente);
                                 const activeProblems = locations.reduce((sum, loc) => 
                                     sum + (loc.problemen?.filter(p => p.Opgelost_x003f_ !== 'Opgelost').length || 0), 0);
@@ -1456,7 +1458,7 @@
                                     ),
                                     
                                     // Location nodes
-                                    isExpanded && locations.map(location => {
+                                    isExpanded && [...locations].sort((a, b) => (a.Title || '').localeCompare(b.Title || '')).map(location => {
                                         const problems = location.problemen || [];
                                         const activeProbs = problems.filter(p => p.Opgelost_x003f_ !== 'Opgelost');
                                         const isLocExpanded = expandedNodes.has(location.Id);
