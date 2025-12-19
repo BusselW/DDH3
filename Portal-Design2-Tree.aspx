@@ -1298,8 +1298,8 @@
                         h('img', { 
                             src: loadingImage,
                             style: { 
-                                width: '50px', height: '50px', 
-                                animation: 'spin 1s linear infinite', 
+                                width: '120px', height: '120px', 
+                                animation: 'spin 0.6s linear infinite', 
                                 margin: '0 auto 20px'
                             },
                             alt: "Laden..."
