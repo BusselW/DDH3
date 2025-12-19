@@ -689,25 +689,34 @@
 
             const recentChanges = useMemo(() => {
                 const allItems = [];
+                const seenIds = new Set();
+
                 data.forEach(loc => {
-                    allItems.push({
-                        type: 'Locatie',
-                        title: loc.Title,
-                        date: new Date(loc.Modified),
-                        id: loc.Id,
-                        data: loc,
-                        gemeente: loc.Gemeente
-                    });
+                    if (!seenIds.has(`Locatie-${loc.Id}`)) {
+                        allItems.push({
+                            type: 'Locatie',
+                            title: loc.Title,
+                            date: new Date(loc.Modified),
+                            id: loc.Id,
+                            data: loc,
+                            gemeente: loc.Gemeente
+                        });
+                        seenIds.add(`Locatie-${loc.Id}`);
+                    }
+
                     if (loc.problemen) {
                         loc.problemen.forEach(prob => {
-                            allItems.push({
-                                type: 'Probleem',
-                                title: prob.Title || `Probleem #${prob.Id}`,
-                                date: new Date(prob.Modified),
-                                id: prob.Id,
-                                data: prob,
-                                parentLoc: loc
-                            });
+                            if (!seenIds.has(`Probleem-${prob.Id}`)) {
+                                allItems.push({
+                                    type: 'Probleem',
+                                    title: prob.Title || `Probleem #${prob.Id}`,
+                                    date: new Date(prob.Modified),
+                                    id: prob.Id,
+                                    data: prob,
+                                    parentLoc: loc
+                                });
+                                seenIds.add(`Probleem-${prob.Id}`);
+                            }
                         });
                     }
                 });
