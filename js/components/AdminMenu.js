@@ -1,4 +1,5 @@
 const { createElement: h, useState, useEffect, useRef } = window.React;
+const { createPortal } = window.ReactDOM;
 import { DDHAdminService } from '../services/ddhAdminService.js';
 
 // Icons
@@ -15,7 +16,7 @@ const Icons = {
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
-    return h('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 99999 } },
+    return createPortal(h('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 99999 } },
         h('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', width: '800px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' } },
             h('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' } },
                 h('h3', { style: { margin: 0 } }, title),
@@ -23,7 +24,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             ),
             children
         )
-    );
+    ), document.body);
 };
 
 const FormSection = ({ title, children, columns = 2 }) => h('div', { style: { marginBottom: '24px', background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' } },
