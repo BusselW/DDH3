@@ -193,7 +193,7 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
             Gemeente: d.Gemeente,
             Status: d.Status_x0020_B_x0026_S,
             Feitcodegroep: d.Feitcodegroep,
-            Waarschuwing: d.Waarschuwing,
+            Waarschuwing: d.Waarschuwingsperiode || d.Waarschuwing,
             StartWaarschuwing: d.Start_x0020_Waarschuwingsperiode,
             EindeWaarschuwing: d.Einde_x0020_Waarschuwingsperiode,
             LaatsteSchouw: d.Laatste_x0020_schouw,

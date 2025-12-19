@@ -538,6 +538,8 @@
         const TreePortal = () => {
             const [data, setData] = useState([]);
             const [loading, setLoading] = useState(true);
+            // 90% chance for common spinner, 10% for rare spinner
+            const [loadingImage] = useState(() => Math.random() < 0.9 ? 'images/spinner_common.png' : 'images/spinner_rare.png');
             const [searchTerm, setSearchTerm] = useState('');
             const [selectedItem, setSelectedItem] = useState({ type: 'overview', data: null });
             const [expandedNodes, setExpandedNodes] = useState(new Set());
@@ -1293,11 +1295,15 @@
             if (loading) {
                 return h('div', { style: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' } },
                     h('div', { style: { textAlign: 'center' } },
-                        h('div', { style: { 
-                            width: '50px', height: '50px', border: '4px solid #f3f3f3', 
-                            borderTop: '4px solid #3b82f6', borderRadius: '50%',
-                            animation: 'spin 1s linear infinite', margin: '0 auto 20px'
-                        } }),
+                        h('img', { 
+                            src: loadingImage,
+                            style: { 
+                                width: '50px', height: '50px', 
+                                animation: 'spin 1s linear infinite', 
+                                margin: '0 auto 20px'
+                            },
+                            alt: "Laden..."
+                        }),
                         h('p', null, 'Tree Portal wordt geladen...')
                     )
                 );
@@ -1352,6 +1358,7 @@
                     h('div', { className: 'recent-grid' },
                         recentChanges.map(item => 
                             h('div', { 
+                                key: item.type + '-' + item.id,
                                 className: 'recent-card',
                                 onClick: () => {
                                     if (item.type === 'Locatie') {
