@@ -208,13 +208,21 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
 
     const handleDelete = async () => {
         if (!isDDHSelected) return;
-        if (confirm(`Weet u zeker dat u "${selectedItem.data.Title}" wilt verwijderen?`)) {
+        const itemId = selectedItem.data.Id || selectedItem.data.ID;
+        if (!itemId) {
+            alert('Fout: Geen geldig ID gevonden voor dit item.');
+            return;
+        }
+
+        if (confirm(`Weet u zeker dat u "${selectedItem.data.Title}" (ID: ${itemId}) wilt verwijderen?`)) {
             try {
                 setLoading(true);
-                await DDHAdminService.deleteLocation(selectedItem.data.Id);
+                console.log(`Deleting location with ID: ${itemId}`);
+                await DDHAdminService.deleteLocation(itemId);
                 alert('Locatie verwijderd');
                 onRefresh();
             } catch (e) {
+                console.error("Delete error:", e);
                 alert('Fout bij verwijderen: ' + e.message);
             } finally {
                 setLoading(false);
@@ -260,13 +268,21 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
 
     const handleDeleteProblem = async () => {
         if (!selectedProblem) return;
-        if (confirm(`Weet u zeker dat u probleem "${selectedProblem.Title}" wilt verwijderen?`)) {
+        const problemId = selectedProblem.Id || selectedProblem.ID;
+        if (!problemId) {
+            alert('Fout: Geen geldig ID gevonden voor dit probleem.');
+            return;
+        }
+
+        if (confirm(`Weet u zeker dat u probleem "${selectedProblem.Title}" (ID: ${problemId}) wilt verwijderen?`)) {
             try {
                 setLoading(true);
-                await DDHAdminService.deleteProblem(selectedProblem.Id);
+                console.log(`Deleting problem with ID: ${problemId}`);
+                await DDHAdminService.deleteProblem(problemId);
                 alert('Probleem verwijderd');
                 onRefresh();
             } catch (e) {
+                console.error("Delete problem error:", e);
                 alert('Fout: ' + e.message);
             } finally {
                 setLoading(false);
@@ -289,7 +305,9 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                     await DDHAdminService.addProblem(serviceData);
                     alert('Probleem aangemaakt');
                 } else {
-                    await DDHAdminService.updateProblem(selectedProblem.Id, serviceData);
+                    const problemId = selectedProblem.Id || selectedProblem.ID;
+                    if (!problemId) throw new Error("Geen geldig ID voor update");
+                    await DDHAdminService.updateProblem(problemId, serviceData);
                     alert('Probleem bijgewerkt');
                 }
                 onRefresh();
@@ -302,7 +320,9 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
                     await DDHAdminService.addLocation(serviceData);
                     alert('Locatie aangemaakt');
                 } else {
-                    await DDHAdminService.updateLocation(selectedItem.data.Id, serviceData);
+                    const itemId = selectedItem.data.Id || selectedItem.data.ID;
+                    if (!itemId) throw new Error("Geen geldig ID voor update");
+                    await DDHAdminService.updateLocation(itemId, serviceData);
                     alert('Locatie bijgewerkt');
                 }
                 onRefresh();

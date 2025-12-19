@@ -216,9 +216,9 @@ export const RelatieQueries = {
     } = opties;
 
     // Haal eerst alle DH locaties op
-    // We voegen expliciet gemeenteID toe omdat berekende velden soms niet in * zitten
+    // We voegen expliciet gemeenteID en Id toe
     // We voegen $top=5000 toe om limieten te voorkomen (default is 100)
-    let dhUrl = LIJSTEN.digitaleHandhaving.endpoints.alleItems() + '?$select=*,gemeenteID&$top=5000';
+    let dhUrl = LIJSTEN.digitaleHandhaving.endpoints.alleItems() + '?$select=Id,*,gemeenteID&$top=5000';
     if (filterDH) {
       dhUrl += `&$filter=${filterDH}`;
     }
