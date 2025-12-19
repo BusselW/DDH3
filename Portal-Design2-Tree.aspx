@@ -485,7 +485,7 @@
         }
 
         /* Responsive Admin Menu */
-        @media (max-width: 1400px) {
+        @media (max-width: 1800px) {
             .admin-menu {
                 width: 60px;
                 padding: 12px 8px;
