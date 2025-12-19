@@ -348,27 +348,29 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
 
     return h('div', null,
         h('div', { className: 'admin-menu' },
-            h('div', { className: 'admin-header' }, h(Icons.Settings), 'Beheer Menu'),
+            h('div', { className: 'admin-header' }, h(Icons.Settings), h('span', { className: 'admin-text' }, 'Beheer Menu')),
             
             // --- Locaties Section ---
             h('div', { className: 'admin-section' },
                 h('div', { className: 'admin-section-title' }, 'DDH Locaties'),
-                h('button', { className: 'admin-btn', onClick: handleCreate, disabled: loading }, 
-                    h(Icons.Plus), 'Toevoegen'
+                h('button', { className: 'admin-btn', onClick: handleCreate, disabled: loading, title: 'Locatie Toevoegen' }, 
+                    h(Icons.Plus), h('span', { className: 'admin-text' }, 'Toevoegen')
                 ),
                 h('button', { 
                     className: 'admin-btn', 
                     disabled: !isDDHSelected || loading,
-                    onClick: handleEdit
+                    onClick: handleEdit,
+                    title: 'Locatie Bewerken'
                 }, 
-                    h(Icons.Edit), 'Bewerken'
+                    h(Icons.Edit), h('span', { className: 'admin-text' }, 'Bewerken')
                 ),
                 h('button', { 
                     className: `admin-btn ${isDDHSelected ? 'danger' : ''}`,
                     disabled: !isDDHSelected || loading,
-                    onClick: handleDelete
+                    onClick: handleDelete,
+                    title: 'Locatie Verwijderen'
                 }, 
-                    h(Icons.Trash), 'Verwijderen'
+                    h(Icons.Trash), h('span', { className: 'admin-text' }, 'Verwijderen')
                 )
             ),
             
@@ -376,26 +378,28 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
             h('div', { className: 'admin-section' },
                 h('div', { className: 'admin-section-title' }, 'Problemen'),
                 selectedProblem ? h('div', { style: { marginBottom: '10px', padding: '8px', background: '#f1f5f9', borderRadius: '6px', fontSize: '13px', border: '1px solid #e2e8f0' } },
-                    h('div', { style: { fontWeight: '600' } }, selectedProblem.Title),
-                    h('div', { style: { color: '#64748b' } }, selectedProblem.Gemeente)
-                ) : h('div', { style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', marginBottom: '10px' } }, 'Selecteer een probleem in de boomstructuur...'),
+                    h('div', { style: { fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, selectedProblem.Title),
+                    h('div', { style: { color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, selectedProblem.Gemeente)
+                ) : h('div', { className: 'admin-text', style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', marginBottom: '10px' } }, 'Selecteer een probleem in de boomstructuur...'),
                 
-                h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading }, 
-                    h(Icons.Plus), 'Toevoegen'
+                h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading, title: 'Probleem Toevoegen' }, 
+                    h(Icons.Plus), h('span', { className: 'admin-text' }, 'Toevoegen')
                 ),
                 h('button', { 
                     className: 'admin-btn', 
                     disabled: !selectedProblem || loading,
-                    onClick: handleEditProblem
+                    onClick: handleEditProblem,
+                    title: 'Probleem Bewerken'
                 }, 
-                    h(Icons.Edit), 'Bewerken'
+                    h(Icons.Edit), h('span', { className: 'admin-text' }, 'Bewerken')
                 ),
                 h('button', { 
                     className: 'admin-btn danger',
                     disabled: !selectedProblem || loading,
-                    onClick: handleDeleteProblem
+                    onClick: handleDeleteProblem,
+                    title: 'Probleem Verwijderen'
                 }, 
-                    h(Icons.Trash), 'Verwijderen'
+                    h(Icons.Trash), h('span', { className: 'admin-text' }, 'Verwijderen')
                 )
             ),
 

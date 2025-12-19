@@ -483,6 +483,40 @@
             border: 1px dashed #3b82f6 !important;
             background-color: #eff6ff;
         }
+
+        /* Responsive Admin Menu */
+        @media (max-width: 1400px) {
+            .admin-menu {
+                width: 60px;
+                padding: 12px 8px;
+                transition: width 0.2s ease;
+            }
+            .admin-menu:hover {
+                width: 260px;
+                padding: 20px;
+            }
+            .admin-menu:hover .admin-text,
+            .admin-menu:hover .admin-section-title {
+                display: block;
+            }
+            .admin-text, .admin-section-title {
+                display: none;
+            }
+            .admin-header {
+                justify-content: center;
+            }
+            .admin-menu:hover .admin-header {
+                justify-content: flex-start;
+            }
+            .admin-btn {
+                justify-content: center;
+                padding: 10px;
+            }
+            .admin-menu:hover .admin-btn {
+                justify-content: flex-start;
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 <body>
