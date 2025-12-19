@@ -366,7 +366,7 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
             
             // --- Locaties Section ---
             h('div', { className: 'admin-section' },
-                h('div', { className: 'admin-section-title' }, 'DDH Locaties'),
+                h('div', { className: 'admin-section-title' }, isExpanded ? 'DDH Locaties' : 'DDH'),
                 h('button', { className: 'admin-btn', onClick: handleCreate, disabled: loading, title: 'Locatie Toevoegen' }, 
                     h(Icons.Plus), h('span', { className: 'admin-text' }, 'Toevoegen')
                 ),
@@ -390,11 +390,11 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
             
             // --- Problemen Section ---
             h('div', { className: 'admin-section' },
-                h('div', { className: 'admin-section-title' }, 'Problemen'),
-                selectedProblem ? h('div', { style: { marginBottom: '10px', padding: '8px', background: '#f1f5f9', borderRadius: '6px', fontSize: '13px', border: '1px solid #e2e8f0' } },
+                h('div', { className: 'admin-section-title' }, isExpanded ? 'Problemen' : 'PPL'),
+                isExpanded && (selectedProblem ? h('div', { style: { marginBottom: '10px', padding: '8px', background: '#f1f5f9', borderRadius: '6px', fontSize: '13px', border: '1px solid #e2e8f0' } },
                     h('div', { style: { fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, selectedProblem.Title),
                     h('div', { style: { color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, selectedProblem.Gemeente)
-                ) : h('div', { className: 'admin-text', style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', marginBottom: '10px' } }, 'Selecteer een probleem in de boomstructuur...'),
+                ) : h('div', { className: 'admin-text', style: { fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', marginBottom: '10px' } }, 'Selecteer een probleem in de boomstructuur...')),
                 
                 h('button', { className: 'admin-btn', onClick: handleCreateProblem, disabled: loading, title: 'Probleem Toevoegen' }, 
                     h(Icons.Plus), h('span', { className: 'admin-text' }, 'Toevoegen')
@@ -419,12 +419,13 @@ export const AdminMenu = ({ selectedItem, selectedProblem, isAdmin, onRefresh })
 
             // --- Relatiebeheer Section ---
             h('div', { className: 'admin-section' },
-                h('div', { className: 'admin-section-title' }, 'Relatiebeheer'),
+                h('div', { className: 'admin-section-title' }, isExpanded ? 'Relatiebeheer' : 'REL'),
                 h('button', { 
                     className: 'admin-btn', 
-                    onClick: () => window.location.href = 'relatiebeheer.aspx'
+                    onClick: () => window.location.href = 'relatiebeheer.aspx',
+                    title: 'Open Relatiebeheer'
                 }, 
-                    h(Icons.User), 'Open Relatiebeheer'
+                    h(Icons.User), h('span', { className: 'admin-text' }, 'Open Relatiebeheer')
                 )
             )
         ),

@@ -499,9 +499,18 @@
             padding: 12px 8px;
         }
 
-        .admin-menu.collapsed .admin-text,
-        .admin-menu.collapsed .admin-section-title {
+        .admin-menu.collapsed .admin-text {
             display: none;
+        }
+        
+        .admin-menu.collapsed .admin-section-title {
+            display: block;
+            font-size: 10px;
+            text-align: center;
+            padding: 4px 0;
+            color: #94a3b8;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
         
         .admin-menu.collapsed .admin-header {
