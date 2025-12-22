@@ -746,7 +746,9 @@
                             id: loc.Id,
                             data: loc,
                             gemeente: loc.Gemeente,
-                            editor: loc.Editor ? (loc.Editor.Title || loc.Editor) : 'Systeem'
+                            editor: loc.Editor ? (loc.Editor.Title || loc.Editor) : 'Systeem',
+                            status: loc.Status_x0020_B_x0026_S,
+                            category: loc.Feitcodegroep
                         });
                         seenIds.add(`Locatie-${loc.Id}`);
                     }
@@ -761,7 +763,10 @@
                                     id: prob.Id,
                                     data: prob,
                                     parentLoc: loc,
-                                    editor: prob.Editor ? (prob.Editor.Title || prob.Editor) : 'Systeem'
+                                    editor: prob.Editor ? (prob.Editor.Title || prob.Editor) : 'Systeem',
+                                    status: prob.Opgelost_x003f_,
+                                    category: prob.Feitcodegroep,
+                                    description: prob.Probleembeschrijving
                                 });
                                 seenIds.add(`Probleem-${prob.Id}`);
                             }
@@ -1437,15 +1442,25 @@
                                         item.type === 'Locatie' ? h(Icons.Location) : h(Icons.Alert),
                                         h('span', { 
                                             className: `recent-tag ${item.type === 'Locatie' ? 'loc' : 'prb'}`
-                                        }, item.type === 'Locatie' ? 'LOC' : 'PRB')
+                                        }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
+                                        item.category && h('span', { 
+                                            className: 'recent-tag',
+                                            style: { background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }
+                                        }, item.category)
                                     ),
                                     h('span', { className: 'recent-card-date' }, 
                                         item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
                                     )
                                 ),
                                 h('div', { className: 'recent-card-title' }, item.title),
+                                item.description && h('div', { 
+                                    style: { fontSize: '12px', color: '#64748b', margin: '4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } 
+                                }, item.description),
                                 h('div', { className: 'recent-card-meta', style: { fontSize: '11px', color: '#64748b', marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '8px' } },
-                                    h('span', { style: { fontWeight: '500' } }, item.type === 'Locatie' ? item.gemeente : item.parentLoc.Gemeente),
+                                    h('div', { style: { display: 'flex', flexDirection: 'column' } },
+                                        h('span', { style: { fontWeight: '500' } }, item.type === 'Locatie' ? item.gemeente : item.parentLoc.Gemeente),
+                                        item.status && h('span', { style: { fontSize: '10px', color: (item.status === 'Opgelost' || item.status === 'Instemming verleend') ? '#10b981' : '#f59e0b' } }, item.status)
+                                    ),
                                     h('span', { style: { fontStyle: 'italic', fontSize: '10px' } }, `door ${item.editor}`)
                                 )
                             )
