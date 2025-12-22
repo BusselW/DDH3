@@ -745,7 +745,8 @@
                             date: new Date(loc.Modified),
                             id: loc.Id,
                             data: loc,
-                            gemeente: loc.Gemeente
+                            gemeente: loc.Gemeente,
+                            editor: loc.Editor ? (loc.Editor.Title || loc.Editor) : 'Systeem'
                         });
                         seenIds.add(`Locatie-${loc.Id}`);
                     }
@@ -759,7 +760,8 @@
                                     date: new Date(prob.Modified),
                                     id: prob.Id,
                                     data: prob,
-                                    parentLoc: loc
+                                    parentLoc: loc,
+                                    editor: prob.Editor ? (prob.Editor.Title || prob.Editor) : 'Systeem'
                                 });
                                 seenIds.add(`Probleem-${prob.Id}`);
                             }
@@ -1431,14 +1433,21 @@
                                 }
                             },
                                 h('div', { className: 'recent-card-header' },
-                                    h('span', { 
-                                        className: `recent-tag ${item.type === 'Locatie' ? 'loc' : 'prb'}`
-                                    }, item.type === 'Locatie' ? 'LOC' : 'PRB'),
+                                    h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+                                        item.type === 'Locatie' ? h(Icons.Location) : h(Icons.Alert),
+                                        h('span', { 
+                                            className: `recent-tag ${item.type === 'Locatie' ? 'loc' : 'prb'}`
+                                        }, item.type === 'Locatie' ? 'LOC' : 'PRB')
+                                    ),
                                     h('span', { className: 'recent-card-date' }, 
-                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+                                        item.date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
                                     )
                                 ),
-                                h('div', { className: 'recent-card-title' }, item.title)
+                                h('div', { className: 'recent-card-title' }, item.title),
+                                h('div', { className: 'recent-card-meta', style: { fontSize: '11px', color: '#64748b', marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '8px' } },
+                                    h('span', { style: { fontWeight: '500' } }, item.type === 'Locatie' ? item.gemeente : item.parentLoc.Gemeente),
+                                    h('span', { style: { fontStyle: 'italic', fontSize: '10px' } }, `door ${item.editor}`)
+                                )
                             )
                         )
                     )
